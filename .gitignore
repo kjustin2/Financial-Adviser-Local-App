@@ -1,36 +1,200 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Financial Adviser Local App - .gitignore
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# testing
-/coverage
+# PyInstaller
+*.manifest
+*.spec
 
-# next.js
-/.next/
-/out/
+# Poetry
+poetry.lock
 
-# production
-/build
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# misc
-.DS_Store
-*.pem
+# Python IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# debug
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Node.js & NPM
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# local env files
-.env*.local
-.env
+# Frontend build
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
 
-# vercel
-.vercel
-
-# typescript
+# TypeScript
 *.tsbuildinfo
-next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Database files
+database/
+*.db
+*.sqlite
+*.sqlite3
+
+# Application data
+data/
+logs/
+temp/
+tmp/
+
+# Security and API keys
+*.pem
+*.key
+*.cert
+config.encrypted
+app.key
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.coverage
+.nyc_output
+test-results/
+playwright-report/
+test-results.xml
+
+# Build artifacts
+build/
+dist/
+*.exe
+*.app
+*.dmg
+*.pkg
+*.deb
+*.rpm
+
+# Documentation build
+docs/_build/
+site/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Financial data (never commit real financial data)
+*.csv
+*.xlsx
+*.xls
+financial_data/
+client_data/
+portfolio_data/
+
+# Local development
+.local/
+local/
+
+# Error Images
+/error_images/

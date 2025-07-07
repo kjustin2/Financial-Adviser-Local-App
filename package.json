@@ -1,0 +1,25 @@
+{
+  "name": "financial-adviser-app",
+  "version": "0.1.0",
+  "description": "Financial Adviser Local Application",
+  "scripts": {
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && poetry run uvicorn app.main:app --reload --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "cd backend && poetry install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "test:all": "cd backend && poetry run pytest && cd ../frontend && npm run test",
+    "test:server": "./scripts/test-server.sh",
+    "lint:all": "cd backend && poetry run black . && poetry run isort . && poetry run ruff check . && cd ../frontend && npm run lint",
+    "type-check:all": "cd backend && poetry run mypy . && cd ../frontend && npm run type-check",
+    "pre-commit": "./scripts/pre-commit-check.sh",
+    "fix:all": "cd backend && poetry run black . && poetry run isort . && cd ../frontend && npm run lint:fix && npm run format"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "private": true,
+  "dependencies": {
+    "poetry": "^0.6.29"
+  }
+}

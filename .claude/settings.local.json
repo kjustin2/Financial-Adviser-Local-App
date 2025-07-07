@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(mkdir:*)",
+      "Bash(python -m alembic revision:*)",
+      "Bash(python3:*)",
+      "Bash(mv:*)",
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(npm install)",
+      "Bash(npm run install:all:*)",
+      "Bash(chmod:*)",
+      "Bash(python:*)",
+      "Bash(poetry --version)",
+      "Bash(poetry install:*)",
+      "Bash(poetry:*)",
+      "Bash(sed:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": []
+  }
+}
