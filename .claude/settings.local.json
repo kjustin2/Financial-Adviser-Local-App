@@ -19,7 +19,11 @@
       "Bash(curl:*)",
       "Bash(./start-app.sh:*)",
       "Bash(npm run build:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(find:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm test)"
     ],
     "deny": []
   }
