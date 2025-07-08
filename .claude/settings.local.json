@@ -16,7 +16,10 @@
       "Bash(poetry install:*)",
       "Bash(poetry:*)",
       "Bash(sed:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(./start-app.sh:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

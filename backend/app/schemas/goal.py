@@ -1,46 +1,56 @@
 """Goal schemas for financial goal tracking API."""
 
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
-from .common import BaseSchema
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 # Import enums from models
-from ..models.goal import GoalType, ContributionType
+from ..models.goal import ContributionType, GoalType
+from .common import BaseSchema
+
 
 class GoalBase(BaseModel):
     """Base goal schema with common fields."""
+
     name: str = Field(min_length=1, max_length=255, description="Goal name")
     description: Optional[str] = None
     goal_type: GoalType
-    target_amount: Decimal = Field(gt=0, decimal_places=2, description="Target amount to reach")
+    target_amount: Decimal = Field(
+        gt=0, decimal_places=2, description="Target amount to reach"
+    )
     target_date: Optional[date] = Field(None, description="Target completion date")
-    priority_level: Optional[int] = Field(3, ge=1, le=5, description="Priority level (1=highest, 5=lowest)")
+    priority_level: Optional[int] = Field(
+        3, ge=1, le=5, description="Priority level (1=highest, 5=lowest)"
+    )
     monthly_contribution: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
     expected_return_rate: Optional[Decimal] = Field(
-        Decimal("0.07"), 
-        ge=0, 
-        le=1, 
+        Decimal("0.07"),
+        ge=0,
+        le=1,
         decimal_places=4,
-        description="Expected annual return rate (as decimal)"
+        description="Expected annual return rate (as decimal)",
     )
     inflation_rate: Optional[Decimal] = Field(
         Decimal("0.03"),
         ge=0,
         le=1,
         decimal_places=4,
-        description="Expected inflation rate (as decimal)"
+        description="Expected inflation rate (as decimal)",
     )
     notes: Optional[str] = None
 
+
 class GoalCreate(GoalBase):
     """Schema for creating a new financial goal."""
-    client_id: int = Field(gt=0, description="Client ID")
+
     current_amount: Optional[Decimal] = Field(Decimal("0.00"), ge=0, decimal_places=2)
+
 
 class GoalUpdate(BaseModel):
     """Schema for updating an existing goal."""
+
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     goal_type: Optional[GoalType] = None
@@ -54,10 +64,12 @@ class GoalUpdate(BaseModel):
     notes: Optional[str] = None
     is_achieved: Optional[bool] = None
 
+
 class GoalResponse(BaseSchema):
     """Schema for goal response."""
+
     id: int
-    client_id: int
+    user_id: int
     name: str
     description: Optional[str] = None
     goal_type: GoalType
@@ -74,17 +86,23 @@ class GoalResponse(BaseSchema):
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    
+
     # Calculated fields
     total_contributions: Decimal = Field(description="Total contributions made")
-    total_current_amount: Decimal = Field(description="Current amount including contributions")
+    total_current_amount: Decimal = Field(
+        description="Current amount including contributions"
+    )
     progress_percent: Decimal = Field(description="Progress percentage toward goal")
     remaining_amount: Decimal = Field(description="Amount remaining to reach goal")
     days_remaining: Optional[int] = Field(None, description="Days until target date")
-    required_monthly_savings: Optional[Decimal] = Field(None, description="Required monthly savings")
+    required_monthly_savings: Optional[Decimal] = Field(
+        None, description="Required monthly savings"
+    )
+
 
 class GoalProgress(BaseModel):
     """Goal progress tracking."""
+
     goal_id: int
     current_amount: Decimal
     target_amount: Decimal
@@ -94,8 +112,10 @@ class GoalProgress(BaseModel):
     projected_completion_date: Optional[date] = None
     on_track: bool = Field(description="Whether goal is on track")
 
+
 class GoalSummary(BaseSchema):
     """Abbreviated goal information for lists."""
+
     id: int
     name: str
     goal_type: GoalType
@@ -106,35 +126,45 @@ class GoalSummary(BaseSchema):
     is_achieved: bool
     days_remaining: Optional[int] = None
 
+
 class GoalList(BaseModel):
     """List of goals with summary information."""
+
     goals: List[GoalSummary]
     total_count: int
     total_target_amount: Decimal
     total_current_amount: Decimal
     average_progress: Decimal
 
+
 # Goal Contribution Schemas
 class GoalContributionBase(BaseModel):
     """Base goal contribution schema."""
+
     amount: Decimal = Field(gt=0, decimal_places=2, description="Contribution amount")
     contribution_date: date = Field(description="Date of contribution")
     contribution_type: Optional[ContributionType] = ContributionType.MANUAL
     notes: Optional[str] = None
 
+
 class GoalContributionCreate(GoalContributionBase):
     """Schema for creating a new goal contribution."""
+
     goal_id: int = Field(gt=0, description="Goal ID")
+
 
 class GoalContributionUpdate(BaseModel):
     """Schema for updating a goal contribution."""
+
     amount: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
     contribution_date: Optional[date] = None
     contribution_type: Optional[ContributionType] = None
     notes: Optional[str] = None
 
+
 class GoalContributionResponse(BaseSchema):
     """Schema for goal contribution response."""
+
     id: int
     goal_id: int
     amount: Decimal
@@ -143,8 +173,10 @@ class GoalContributionResponse(BaseSchema):
     notes: Optional[str] = None
     created_at: datetime
 
+
 class GoalContributionList(BaseModel):
     """List of goal contributions."""
+
     contributions: List[GoalContributionResponse]
     total_count: int
     total_amount: Decimal

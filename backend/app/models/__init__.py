@@ -1,20 +1,17 @@
 """Database models package."""
 
 from .base import Base
-from .user import User
-from .client import Client
-from .portfolio import Portfolio
-from .holding import Holding
-from .transaction import Transaction
 from .goal import FinancialGoal, GoalContribution
+from .holding import Holding
 from .market_data import MarketData
+from .portfolio import Portfolio
 from .report import Report
-from .client_note import ClientNote
+from .transaction import Transaction
+from .user import User
 
 __all__ = [
     "Base",
     "User",
-    "Client", 
     "Portfolio",
     "Holding",
     "Transaction",
@@ -22,5 +19,4 @@ __all__ = [
     "GoalContribution",
     "MarketData",
     "Report",
-    "ClientNote",
 ]

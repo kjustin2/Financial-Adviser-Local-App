@@ -42,9 +42,39 @@ financial-adviser-app/
 ### Prerequisites
 - **Python 3.11+**: [Download Python](https://python.org/downloads/)
 - **Node.js 18+**: [Download Node.js](https://nodejs.org/)
+- **Poetry**: [Install Poetry](https://python-poetry.org/docs/#installation)
 - **Git**: [Download Git](https://git-scm.com/)
 
-### Installation
+### One-Click Setup (Recommended)
+
+For the fastest setup, use the provided startup scripts:
+
+#### Windows
+```bash
+# Double-click or run from command prompt
+start-app.bat
+```
+
+#### macOS/Linux
+```bash
+# Make executable and run
+chmod +x start-app.sh
+./start-app.sh
+```
+
+#### Cross-Platform (Python)
+```bash
+# Works on any platform with Python 3.11+
+python start-app.py
+```
+
+**What the startup scripts do:**
+1. Check if Poetry and Node.js are installed
+2. Install all project dependencies automatically
+3. Start both backend and frontend servers
+4. Open the application in your browser
+
+### Manual Installation
 
 #### 1. Clone Repository
 ```bash

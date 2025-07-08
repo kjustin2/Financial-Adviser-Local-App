@@ -1,18 +1,23 @@
 """Database configuration and session management."""
 
+import sqlite3
+
 from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.engine import Engine
-import sqlite3
+
 from .config import settings
 
 # Create database engine
 engine = create_engine(
     settings.database_url,
     echo=settings.echo_sql,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {}
+    connect_args={"check_same_thread": False}
+    if "sqlite" in settings.database_url
+    else {},
 )
+
 
 # Configure SQLite for better performance and integrity
 @event.listens_for(Engine, "connect")
@@ -31,11 +36,13 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor.execute("PRAGMA temp_store=MEMORY")
         cursor.close()
 
+
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create base class for declarative models
 Base = declarative_base()
+
 
 def get_db():
     """Get database session for dependency injection."""
@@ -45,9 +52,11 @@ def get_db():
     finally:
         db.close()
 
+
 def create_tables():
     """Create all database tables."""
     Base.metadata.create_all(bind=engine)
+
 
 def drop_tables():
     """Drop all database tables."""

@@ -2,18 +2,18 @@ import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/utils/cn'
 import { 
   LayoutDashboard, 
-  Users, 
   PieChart, 
   Target, 
   FileText, 
-  Settings 
+  Settings,
+  TrendingUp 
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Clients', href: '/clients', icon: Users },
-  { name: 'Portfolios', href: '/portfolios', icon: PieChart },
-  { name: 'Goals', href: '/goals', icon: Target },
+  { name: 'My Portfolios', href: '/portfolios', icon: PieChart },
+  { name: 'My Goals', href: '/goals', icon: Target },
+  { name: 'Market Data', href: '/market', icon: TrendingUp },
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
