@@ -42,6 +42,7 @@ interface RequestConfig extends RequestInit {
   skipAuth?: boolean;
 }
 
+// Interface for standardized API response format
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -231,17 +232,18 @@ class ApiService {
 
     // Handle standardized API response format
     if (responseData?.success !== undefined) {
-      if (!responseData.success) {
-        const error = responseData.error || {};
+      const apiResponse = responseData as ApiResponse<T>;
+      if (!apiResponse.success) {
+        const error = apiResponse.error || { message: 'Request failed', code: '', details: null };
         throw new ApiError(
           error.message || 'Request failed',
           response.status,
           error.code,
           error.details,
-          responseData.request_id
+          apiResponse.request_id
         );
       }
-      return responseData.data;
+      return apiResponse.data as T;
     }
 
     // Return raw response for non-standardized endpoints
@@ -256,7 +258,7 @@ class ApiService {
     const maxRetries = config.retries ?? this.defaultRetries;
     const baseRetryDelay = config.retryDelay ?? this.defaultRetryDelay;
     
-    let lastError: Error;
+    let lastError: Error = new Error('Request failed');
 
     for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
       const startTime = performance.now();

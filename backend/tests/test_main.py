@@ -166,7 +166,6 @@ class TestDatabaseConnection:
     def test_database_tables_created(self, test_db):
         """Test that database tables are created on startup."""
         # Check that we can query the database
-        from app.database import get_db
 
         db = next(override_get_db())
         try:
@@ -197,7 +196,6 @@ class TestSecurity:
         response = client.get("/")
 
         # Check for security headers
-        headers = response.headers
         # These would be set by additional middleware if needed
         # For now, just ensure basic security is working
         assert response.status_code == 200

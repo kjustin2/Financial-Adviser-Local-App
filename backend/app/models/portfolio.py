@@ -2,9 +2,8 @@
 
 import enum
 
-from sqlalchemy import JSON, Column
+from sqlalchemy import JSON, Column, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel

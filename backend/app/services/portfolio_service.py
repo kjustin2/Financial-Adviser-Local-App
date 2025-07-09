@@ -1,13 +1,11 @@
 """Portfolio service for business logic and calculations."""
 
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from sqlalchemy.orm import Session
 
-from ..models.holding import Holding
 from ..models.portfolio import Portfolio
-from ..models.transaction import Transaction
 
 
 class PortfolioService:
@@ -176,9 +174,7 @@ class PortfolioService:
 
         sector_count = len(sectors)
         largest_holding_percent = (
-            float((largest_holding_value / total_value * 100))
-            if total_value > 0
-            else 0.0
+            float(largest_holding_value / total_value * 100) if total_value > 0 else 0.0
         )
 
         # Simple diversification score (0-100)

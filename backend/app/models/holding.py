@@ -2,9 +2,17 @@
 
 import enum
 
-from sqlalchemy import Column, Date, DateTime
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel

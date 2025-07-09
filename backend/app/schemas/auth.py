@@ -72,6 +72,9 @@ class UserResponse(BaseSchema):
         """Get user's full name."""
         return f"{self.first_name} {self.last_name}"
 
+    class Config:
+        from_attributes = True
+
 
 # Forward reference resolution
 TokenResponse.model_rebuild()

@@ -1,7 +1,7 @@
 """Health check and monitoring tests."""
 
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -152,7 +152,7 @@ class TestApplicationStatus:
         assert "/health" in paths
 
         # Should have API v1 prefix for other endpoints
-        api_paths = [path for path in paths.keys() if path.startswith("/api/v1")]
+        [path for path in paths.keys() if path.startswith("/api/v1")]
         # In a full implementation, this would have more endpoints
 
     def test_middleware_functioning(self):

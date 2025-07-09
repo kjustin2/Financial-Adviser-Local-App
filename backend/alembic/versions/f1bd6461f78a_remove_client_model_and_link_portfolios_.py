@@ -1,7 +1,7 @@
 """Remove client model and link portfolios to users
 
 Revision ID: f1bd6461f78a
-Revises: 
+Revises:
 Create Date: 2025-07-07 18:28:38.129289
 
 """

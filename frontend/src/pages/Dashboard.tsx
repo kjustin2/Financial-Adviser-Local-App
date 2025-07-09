@@ -1,21 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingUp, TrendingDown, PieChart, Target, DollarSign } from 'lucide-react'
+import { TrendingUp, TrendingDown, PieChart, Target, DollarSign, AlertCircle } from 'lucide-react'
+import { usePortfolios } from '@/hooks/usePortfolios'
+import { useGoals } from '@/hooks/useGoals'
 
 export function Dashboard() {
-  // Mock data - would come from API in real app
-  const mockData = {
-    totalValue: 200000,
-    totalGainLoss: 12500,
-    totalReturnPercent: 6.7,
-    portfoliosCount: 3,
-    goalsCount: 4,
-    goalsProgress: 65.2,
-    recentTransactions: [
-      { id: 1, type: 'Buy', symbol: 'AAPL', amount: 1500, date: '2025-01-06' },
-      { id: 2, type: 'Dividend', symbol: 'VTI', amount: 125, date: '2025-01-05' },
-      { id: 3, type: 'Sell', symbol: 'MSFT', amount: 2200, date: '2025-01-04' },
-    ]
-  }
+  const { data: portfolioData, isLoading: portfoliosLoading, error: portfoliosError } = usePortfolios()
+  const { data: goalsData, isLoading: goalsLoading, error: goalsError } = useGoals()
+
+  // Mock recent transactions data for now
+  const recentTransactions = [
+    { id: 1, type: 'Buy', symbol: 'AAPL', amount: 1500, date: '2025-01-06' },
+    { id: 2, type: 'Dividend', symbol: 'VTI', amount: 125, date: '2025-01-05' },
+    { id: 3, type: 'Sell', symbol: 'MSFT', amount: 2200, date: '2025-01-04' },
+  ]
+
+  const isLoading = portfoliosLoading || goalsLoading
+  const hasError = portfoliosError || goalsError
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -28,12 +28,57 @@ export function Dashboard() {
     return `${percent >= 0 ? '+' : ''}${percent.toFixed(1)}%`
   }
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Loading your portfolio data...</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="space-y-0 pb-2">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        </div>
+        <Card className="border-red-200">
+          <CardContent className="flex items-center space-x-2 p-6">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <div>
+              <p className="text-red-800 font-medium">Failed to load portfolio data</p>
+              <p className="text-red-600 text-sm">Please try refreshing the page or contact support if the issue persists.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back! Here's an overview of your financial portfolio
+          Welcome back! Here&apos;s an overview of your financial portfolio
         </p>
       </div>
 
@@ -45,9 +90,11 @@ export function Dashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(mockData.totalValue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(portfolioData?.total_value || 0)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {formatPercent(mockData.totalReturnPercent)} from cost basis
+              {formatPercent(portfolioData?.total_return_percent || 0)} from cost basis
             </p>
           </CardContent>
         </Card>
@@ -55,15 +102,15 @@ export function Dashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Gain/Loss</CardTitle>
-            {mockData.totalGainLoss >= 0 ? (
+            {(portfolioData?.total_gain_loss || 0) >= 0 ? (
               <TrendingUp className="h-4 w-4 text-green-600" />
             ) : (
               <TrendingDown className="h-4 w-4 text-red-600" />
             )}
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${mockData.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatCurrency(mockData.totalGainLoss)}
+            <div className={`text-2xl font-bold ${(portfolioData?.total_gain_loss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(portfolioData?.total_gain_loss || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Since inception
@@ -77,7 +124,7 @@ export function Dashboard() {
             <PieChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockData.portfoliosCount}</div>
+            <div className="text-2xl font-bold">{portfolioData?.portfolios_count || 0}</div>
             <p className="text-xs text-muted-foreground">
               Across different strategies
             </p>
@@ -90,9 +137,11 @@ export function Dashboard() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockData.goalsProgress.toFixed(1)}%</div>
+            <div className="text-2xl font-bold">
+              {goalsData?.average_progress?.toFixed(1) || '0.0'}%
+            </div>
             <p className="text-xs text-muted-foreground">
-              {mockData.goalsCount} active goals
+              {goalsData?.total_goals || 0} active goals
             </p>
           </CardContent>
         </Card>
@@ -121,7 +170,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockData.recentTransactions.map((transaction) => (
+              {recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-2 h-2 rounded-full ${

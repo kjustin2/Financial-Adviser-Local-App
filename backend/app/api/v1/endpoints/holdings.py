@@ -37,7 +37,7 @@ async def get_holdings(
     query = (
         db.query(Holding)
         .join(Portfolio)
-        .filter(Portfolio.user_id == current_user.id, Holding.is_active == True)
+        .filter(Portfolio.user_id == current_user.id, Holding.is_active is True)
     )
 
     if portfolio_id:
@@ -93,7 +93,7 @@ async def create_holding(
         .filter(
             Portfolio.id == holding_data.portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )
@@ -110,7 +110,7 @@ async def create_holding(
         .filter(
             Holding.portfolio_id == holding_data.portfolio_id,
             Holding.symbol == holding_data.symbol,
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .first()
     )
@@ -153,7 +153,7 @@ async def get_holding(
         .filter(
             Holding.id == holding_id,
             Portfolio.user_id == current_user.id,
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .first()
     )
@@ -181,7 +181,7 @@ async def update_holding(
         .filter(
             Holding.id == holding_id,
             Portfolio.user_id == current_user.id,
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .first()
     )
@@ -216,7 +216,7 @@ async def delete_holding(
         .filter(
             Holding.id == holding_id,
             Portfolio.user_id == current_user.id,
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .first()
     )
@@ -249,7 +249,7 @@ async def create_bulk_holdings(
         .filter(
             Portfolio.id == bulk_data.portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )
@@ -274,7 +274,7 @@ async def create_bulk_holdings(
         .filter(
             Holding.portfolio_id == bulk_data.portfolio_id,
             Holding.symbol.in_(symbols),
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .all()
     )
@@ -327,7 +327,7 @@ async def get_holding_performance(
         .filter(
             Holding.id == holding_id,
             Portfolio.user_id == current_user.id,
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .first()
     )
@@ -369,7 +369,7 @@ async def update_holding_price(
         .filter(
             Holding.id == holding_id,
             Portfolio.user_id == current_user.id,
-            Holding.is_active == True,
+            Holding.is_active is True,
         )
         .first()
     )

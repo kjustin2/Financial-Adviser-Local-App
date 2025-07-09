@@ -1,5 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { logger, logReactError } from '../utils/logger';
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { logReactError } from '../utils/logger';
 
 interface Props {
   children: ReactNode;
@@ -59,7 +59,7 @@ class ErrorBoundary extends Component<Props, State> {
               We're sorry, but something unexpected happened. The error has been logged and we'll look into it.
             </div>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.MODE === 'development' && this.state.error && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
                   Error Details (Development Only)

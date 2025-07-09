@@ -2,7 +2,7 @@
 
 from datetime import date
 from decimal import Decimal
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -15,7 +15,6 @@ from ....schemas.goal import (
     GoalContributionCreate,
     GoalContributionList,
     GoalContributionResponse,
-    GoalContributionUpdate,
     GoalCreate,
     GoalList,
     GoalProgress,
@@ -37,7 +36,7 @@ async def get_goals(
 ):
     """Get all goals for the current user."""
     query = db.query(FinancialGoal).filter(
-        FinancialGoal.user_id == current_user.id, FinancialGoal.is_active == True
+        FinancialGoal.user_id == current_user.id, FinancialGoal.is_active is True
     )
 
     if achieved is not None:
@@ -121,7 +120,7 @@ async def get_goal(
         .filter(
             FinancialGoal.id == goal_id,
             FinancialGoal.user_id == current_user.id,
-            FinancialGoal.is_active == True,
+            FinancialGoal.is_active is True,
         )
         .first()
     )
@@ -148,7 +147,7 @@ async def update_goal(
         .filter(
             FinancialGoal.id == goal_id,
             FinancialGoal.user_id == current_user.id,
-            FinancialGoal.is_active == True,
+            FinancialGoal.is_active is True,
         )
         .first()
     )
@@ -193,7 +192,7 @@ async def delete_goal(
         .filter(
             FinancialGoal.id == goal_id,
             FinancialGoal.user_id == current_user.id,
-            FinancialGoal.is_active == True,
+            FinancialGoal.is_active is True,
         )
         .first()
     )
@@ -223,7 +222,7 @@ async def get_goal_progress(
         .filter(
             FinancialGoal.id == goal_id,
             FinancialGoal.user_id == current_user.id,
-            FinancialGoal.is_active == True,
+            FinancialGoal.is_active is True,
         )
         .first()
     )
@@ -305,7 +304,7 @@ async def get_goal_contributions(
         .filter(
             FinancialGoal.id == goal_id,
             FinancialGoal.user_id == current_user.id,
-            FinancialGoal.is_active == True,
+            FinancialGoal.is_active is True,
         )
         .first()
     )
@@ -365,7 +364,7 @@ async def add_goal_contribution(
         .filter(
             FinancialGoal.id == goal_id,
             FinancialGoal.user_id == current_user.id,
-            FinancialGoal.is_active == True,
+            FinancialGoal.is_active is True,
         )
         .first()
     )

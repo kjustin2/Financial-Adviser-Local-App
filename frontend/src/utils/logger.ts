@@ -29,7 +29,7 @@ class Logger {
   private setupErrorHandlers() {
     // Global error handler
     window.addEventListener('error', (event) => {
-      this.error('Unhandled JavaScript error', {
+      this.error('Unhandled JavaScript error', 'GlobalError', {
         message: event.message,
         filename: event.filename,
         lineno: event.lineno,
@@ -40,7 +40,7 @@ class Logger {
 
     // Unhandled promise rejection handler
     window.addEventListener('unhandledrejection', (event) => {
-      this.error('Unhandled promise rejection', {
+      this.error('Unhandled promise rejection', 'GlobalError', {
         reason: event.reason,
         promise: event.promise
       });
@@ -48,7 +48,7 @@ class Logger {
 
     // React error boundary fallback
     window.addEventListener('react-error', (event: any) => {
-      this.error('React error boundary triggered', {
+      this.error('React error boundary triggered', 'React', {
         componentStack: event.detail?.componentStack,
         errorBoundary: event.detail?.errorBoundary,
         error: event.detail?.error

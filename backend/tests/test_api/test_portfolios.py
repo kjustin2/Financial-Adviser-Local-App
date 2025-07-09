@@ -4,11 +4,9 @@ from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 
 from app.main import app
-from app.models.portfolio import Portfolio, PortfolioType, RiskLevel
-from app.models.user import User
+from app.models.portfolio import PortfolioType, RiskLevel
 from app.security.auth import create_access_token
 
 client = TestClient(app)

@@ -23,7 +23,11 @@
       "Bash(find:*)",
       "Bash(npm run lint)",
       "Bash(npm run type-check:*)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Bash(npm install:*)",
+      "Bash(touch:*)",
+      "Bash(pkill:*)",
+      "Bash(timeout 10 poetry run uvicorn app.main:app --reload --port 8000)"
     ],
     "deny": []
   }

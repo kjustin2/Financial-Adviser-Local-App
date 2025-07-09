@@ -72,7 +72,7 @@ def register_user(user_data: UserRegister, db: Session = Depends(get_db)) -> Any
         access_token=access_token,
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
-        user=UserResponse.from_orm(db_user),
+        user=UserResponse.model_validate(db_user),
     )
 
 
@@ -83,7 +83,7 @@ def login_user(
     """Login user with email and password."""
     user = (
         db.query(User)
-        .filter(User.email == form_data.username, User.is_active == True)
+        .filter(User.email == form_data.username, User.is_active is True)
         .first()
     )
 
@@ -103,7 +103,7 @@ def login_user(
         access_token=access_token,
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
-        user=UserResponse.from_orm(user),
+        user=UserResponse.model_validate(user),
     )
 
 
@@ -112,7 +112,7 @@ def login_user_json(user_data: UserLogin, db: Session = Depends(get_db)) -> Any:
     """Login user with JSON payload."""
     user = (
         db.query(User)
-        .filter(User.email == user_data.email, User.is_active == True)
+        .filter(User.email == user_data.email, User.is_active is True)
         .first()
     )
 
@@ -131,14 +131,14 @@ def login_user_json(user_data: UserLogin, db: Session = Depends(get_db)) -> Any:
         access_token=access_token,
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
-        user=UserResponse.from_orm(user),
+        user=UserResponse.model_validate(user),
     )
 
 
 @router.get("/me", response_model=UserResponse)
 def get_current_user_info(current_user: User = Depends(get_current_active_user)) -> Any:
     """Get current user information."""
-    return UserResponse.from_orm(current_user)
+    return UserResponse.model_validate(current_user)
 
 
 @router.post("/change-password")

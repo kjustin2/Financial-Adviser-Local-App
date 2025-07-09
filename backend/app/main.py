@@ -14,7 +14,7 @@ from slowapi.util import get_remote_address
 
 from .config import settings
 from .database import create_tables
-from .utils.logging import LoggingMiddleware, get_logger, log_error, log_security_event
+from .utils.logging import LoggingMiddleware, get_logger, log_error
 
 # Initialize logger
 logger = get_logger("main")
@@ -67,7 +67,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
                 "message": "Invalid input data",
                 "details": exc.errors(),
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
         },
     )
 
@@ -96,7 +96,7 @@ async def general_exception_handler(request: Request, exc: Exception):
                 if settings.debug
                 else "Contact support for assistance",
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
         },
     )
 
@@ -110,7 +110,7 @@ async def health_check(request: Request):
     return {
         "success": True,
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now().isoformat(),
         "version": settings.app_version,
     }
 
@@ -128,12 +128,24 @@ async def root():
     }
 
 
-# Create database tables on startup
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup."""
+# Include API routes
+from .api.v1.api import router as api_router
+
+app.include_router(api_router, prefix="/api/v1")
+
+
+# Application lifespan handler (replaces deprecated on_event)
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler."""
+    # Startup
     try:
         create_tables()
+        if not settings.is_production_ready:
+            logger.warning("⚠️  Using default secret key - change for production!")
         logger.info(f"✅ {settings.app_name} started successfully")
         logger.info(f"📊 Database: {settings.database_url}")
         logger.info(f"🔧 Debug mode: {settings.debug}")
@@ -142,18 +154,14 @@ async def startup_event():
         logger.error(f"❌ Failed to start application: {str(e)}")
         raise
 
+    yield
 
-# Include API routes
-from .api.v1.api import router as api_router
-
-app.include_router(api_router, prefix="/api/v1")
-
-
-# Graceful shutdown
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown."""
+    # Shutdown
     logger.info(f"🛑 {settings.app_name} shutting down...")
+
+
+# Update FastAPI app with lifespan
+app.router.lifespan_context = lifespan
 
 
 if __name__ == "__main__":

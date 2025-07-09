@@ -1,6 +1,5 @@
 """Base model class with common fields and utilities."""
 
-from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, Integer
 from sqlalchemy.ext.declarative import declarative_base

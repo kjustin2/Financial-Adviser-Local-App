@@ -1,12 +1,11 @@
 """Portfolio management API endpoints."""
 
 from decimal import Decimal
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ....api.deps import get_current_user
 from ....database import get_db
 from ....models.portfolio import Portfolio
 from ....models.user import User
@@ -19,7 +18,7 @@ from ....schemas.portfolio import (
     PortfolioSummary,
     PortfolioUpdate,
 )
-from ....services.portfolio_service import PortfolioService
+from ...deps import get_current_user
 
 router = APIRouter()
 
@@ -34,7 +33,7 @@ async def get_portfolios(
     """Get all portfolios for the current user."""
     portfolios = (
         db.query(Portfolio)
-        .filter(Portfolio.user_id == current_user.id, Portfolio.is_active == True)
+        .filter(Portfolio.user_id == current_user.id, Portfolio.is_active is True)
         .offset(skip)
         .limit(limit)
         .all()
@@ -121,7 +120,7 @@ async def get_portfolio(
         .filter(
             Portfolio.id == portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )
@@ -167,7 +166,7 @@ async def update_portfolio(
         .filter(
             Portfolio.id == portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )
@@ -220,7 +219,7 @@ async def delete_portfolio(
         .filter(
             Portfolio.id == portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )
@@ -250,7 +249,7 @@ async def get_portfolio_performance(
         .filter(
             Portfolio.id == portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )
@@ -292,7 +291,7 @@ async def get_portfolio_allocation(
         .filter(
             Portfolio.id == portfolio_id,
             Portfolio.user_id == current_user.id,
-            Portfolio.is_active == True,
+            Portfolio.is_active is True,
         )
         .first()
     )

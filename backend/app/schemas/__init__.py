@@ -1,11 +1,11 @@
 """Pydantic schemas for API request/response models."""
 
 from .auth import *
-from .client import *
 from .common import *
 from .goal import *
 from .holding import *
 from .portfolio import *
+from .transaction import *
 
 __all__ = [
     # Common schemas
@@ -18,12 +18,6 @@ __all__ = [
     "UserRegister",
     "TokenResponse",
     "UserResponse",
-    # Client schemas
-    "ClientBase",
-    "ClientCreate",
-    "ClientUpdate",
-    "ClientResponse",
-    "ClientList",
     # Portfolio schemas
     "PortfolioBase",
     "PortfolioCreate",
@@ -45,4 +39,11 @@ __all__ = [
     "GoalList",
     "GoalContributionCreate",
     "GoalContributionResponse",
+    # Transaction schemas
+    "TransactionType",
+    "TransactionBase",
+    "TransactionCreate",
+    "TransactionUpdate",
+    "TransactionResponse",
+    "TransactionList",
 ]

@@ -1,6 +1,6 @@
 """User model for authentication and personal financial management."""
 
-from sqlalchemy import Boolean, Column, String, Text
+from sqlalchemy import Column, String, Text
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel

@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    @property
+    def is_production_ready(self) -> bool:
+        """Check if configuration is production ready."""
+        return self.secret_key != "your-secret-key-change-this-in-production"
+
     # API Keys (encrypted storage)
     alpha_vantage_api_key: Optional[str] = None
     polygon_api_key: Optional[str] = None
