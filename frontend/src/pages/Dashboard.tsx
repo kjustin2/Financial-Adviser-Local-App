@@ -1,21 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingUp, TrendingDown, PieChart, Target, DollarSign, AlertCircle } from 'lucide-react'
+import { TrendingUp, TrendingDown, PieChart, DollarSign, AlertCircle } from 'lucide-react'
 import { usePortfolios } from '@/hooks/usePortfolios'
-import { useGoals } from '@/hooks/useGoals'
+import { RecommendationsCard } from '@/components/recommendations/RecommendationsCard'
 
 export function Dashboard() {
   const { data: portfolioData, isLoading: portfoliosLoading, error: portfoliosError } = usePortfolios()
-  const { data: goalsData, isLoading: goalsLoading, error: goalsError } = useGoals()
 
-  // Mock recent transactions data for now
-  const recentTransactions = [
-    { id: 1, type: 'Buy', symbol: 'AAPL', amount: 1500, date: '2025-01-06' },
-    { id: 2, type: 'Dividend', symbol: 'VTI', amount: 125, date: '2025-01-05' },
-    { id: 3, type: 'Sell', symbol: 'MSFT', amount: 2200, date: '2025-01-04' },
-  ]
+  // TODO: Replace with actual transactions from API
+  const recentTransactions: any[] = []
 
-  const isLoading = portfoliosLoading || goalsLoading
-  const hasError = portfoliosError || goalsError
+  const isLoading = portfoliosLoading
+  const hasError = portfoliosError
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -24,9 +19,12 @@ export function Dashboard() {
     }).format(amount)
   }
 
-  const formatPercent = (percent: number) => {
-    return `${percent >= 0 ? '+' : ''}${percent.toFixed(1)}%`
+  const formatPercent = (percent: number | string | undefined | null) => {
+    const numValue = typeof percent === 'number' ? percent : parseFloat(String(percent || 0))
+    const safeValue = isNaN(numValue) ? 0 : numValue
+    return `${safeValue >= 0 ? '+' : ''}${safeValue.toFixed(1)}%`
   }
+
 
   // Show loading state
   if (isLoading) {
@@ -131,20 +129,6 @@ export function Dashboard() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Goal Progress</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {goalsData?.average_progress?.toFixed(1) || '0.0'}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {goalsData?.total_goals || 0} active goals
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Recent Activity */}
@@ -170,76 +154,54 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-2 h-2 rounded-full ${
-                      transaction.type === 'Buy' ? 'bg-green-500' :
-                      transaction.type === 'Sell' ? 'bg-red-500' : 'bg-blue-500'
-                    }`} />
-                    <div>
-                      <p className="text-sm font-medium">
-                        {transaction.type} {transaction.symbol}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(transaction.date).toLocaleDateString()}
-                      </p>
+              {recentTransactions.length > 0 ? (
+                <>
+                  {recentTransactions.map((transaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-2 h-2 rounded-full ${
+                          transaction.type === 'Buy' ? 'bg-green-500' :
+                          transaction.type === 'Sell' ? 'bg-red-500' : 'bg-blue-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm font-medium">
+                            {transaction.type} {transaction.symbol}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(transaction.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">
+                          {formatCurrency(transaction.amount)}
+                        </p>
+                      </div>
                     </div>
+                  ))}
+                  <div className="text-center pt-4">
+                    <button className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                      View all transactions →
+                    </button>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      {formatCurrency(transaction.amount)}
-                    </p>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-muted-foreground">
+                    <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-sm">No recent transactions</p>
+                    <p className="text-xs">Transactions will appear here once you start investing</p>
                   </div>
                 </div>
-              ))}
-              <div className="text-center pt-4">
-                <button className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
-                  View all transactions →
-                </button>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Goals Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Financial Goals Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Mock goal progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Emergency Fund</span>
-                <span>68.5%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '68.5%' }}></div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Home Down Payment</span>
-                <span>35.2%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '35.2%' }}></div>
-              </div>
-            </div>
-            <div className="text-center pt-4">
-              <button className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
-                View all goals →
-              </button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
+      {/* Investment Recommendations */}
+      <RecommendationsCard />
     </div>
   )
 }

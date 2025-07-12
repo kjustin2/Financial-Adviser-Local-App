@@ -2,15 +2,14 @@
 
 from .auth import *
 from .common import *
-from .goal import *
 from .holding import *
 from .portfolio import *
-from .transaction import *
+from .recommendation import *
 
 __all__ = [
     # Common schemas
     "SuccessResponse",
-    "ErrorResponse",
+    "ErrorResponse", 
     "PaginatedResponse",
     "StandardResponse",
     # Auth schemas
@@ -31,19 +30,7 @@ __all__ = [
     "HoldingUpdate",
     "HoldingResponse",
     "HoldingList",
-    # Goal schemas
-    "GoalBase",
-    "GoalCreate",
-    "GoalUpdate",
-    "GoalResponse",
-    "GoalList",
-    "GoalContributionCreate",
-    "GoalContributionResponse",
-    # Transaction schemas
-    "TransactionType",
-    "TransactionBase",
-    "TransactionCreate",
-    "TransactionUpdate",
-    "TransactionResponse",
-    "TransactionList",
+    # Recommendation schemas
+    "RecommendationResponse",
+    "FinancialSummaryResponse",
 ]

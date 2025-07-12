@@ -31,7 +31,7 @@ def get_current_user(
     except Exception:
         raise credentials_exception
 
-    user = db.query(User).filter(User.id == user_id, User.is_active is True).first()
+    user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
     if user is None:
         raise credentials_exception
 
@@ -58,7 +58,7 @@ def get_optional_current_user(
         if user_id is None:
             return None
 
-        user = db.query(User).filter(User.id == user_id, User.is_active is True).first()
+        user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
         return user
     except Exception:
         return None

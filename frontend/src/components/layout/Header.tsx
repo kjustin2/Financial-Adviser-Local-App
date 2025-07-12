@@ -1,14 +1,21 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { PieChart, User, LogOut, Settings } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const navigate = useNavigate()
   const { user, logout } = useAuth()
 
   const handleLogout = () => {
     logout()
+    setShowUserMenu(false)
+  }
+
+  const handleProfileSettings = () => {
+    navigate('/settings')
     setShowUserMenu(false)
   }
 
@@ -44,7 +51,7 @@ export function Header() {
                     <div className="text-gray-500">{user?.email}</div>
                   </div>
                   <button
-                    onClick={() => setShowUserMenu(false)}
+                    onClick={handleProfileSettings}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Profile Settings

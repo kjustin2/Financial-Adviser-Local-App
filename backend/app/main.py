@@ -105,13 +105,141 @@ async def general_exception_handler(request: Request, exc: Exception):
 @app.get("/health")
 @limiter.limit("30/minute")
 async def health_check(request: Request):
-    """Health check endpoint."""
+    """Enhanced health check endpoint with system status."""
+    from .database import engine
+    from sqlalchemy import text
+    
     logger.debug("Health check requested")
-    return {
+    
+    health_status = {
         "success": True,
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "version": settings.app_version,
+        "environment": "development" if settings.debug else "production",
+        "components": {
+            "database": "unknown",
+            "logging": "healthy",
+            "auth": "healthy"
+        }
+    }
+    
+    # Check database connectivity
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        health_status["components"]["database"] = "healthy"
+    except Exception as e:
+        logger.error(f"Database health check failed: {str(e)}")
+        health_status["components"]["database"] = "unhealthy"
+        health_status["status"] = "degraded"
+    
+    return health_status
+
+
+# Debug endpoint for development
+@app.get("/debug")
+@limiter.limit("10/minute")
+async def debug_info(request: Request):
+    """Debug information endpoint (development only)."""
+    if not settings.debug:
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    from .database import engine
+    from sqlalchemy import text
+    
+    debug_data = {
+        "success": True,
+        "timestamp": datetime.now().isoformat(),
+        "server_info": {
+            "version": settings.app_version,
+            "debug_mode": settings.debug,
+            "database_url": settings.database_url.split("://")[0] + "://[REDACTED]",
+            "allowed_origins": settings.allowed_origins,
+        },
+        "request_info": {
+            "client_ip": request.client.host if request.client else "unknown",
+            "user_agent": request.headers.get("user-agent", "unknown"),
+            "method": request.method,
+            "url": str(request.url),
+        },
+        "database_info": {
+            "connected": False,
+            "tables": []
+        }
+    }
+    
+    # Get database information
+    try:
+        with engine.connect() as connection:
+            debug_data["database_info"]["connected"] = True
+            # Get table names (SQLite specific)
+            result = connection.execute(text(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ))
+            tables = [row[0] for row in result]
+            debug_data["database_info"]["tables"] = tables
+    except Exception as e:
+        logger.error(f"Debug database info failed: {str(e)}")
+        debug_data["database_info"]["error"] = str(e)
+    
+    return debug_data
+
+
+# Validation rules endpoint
+@app.get("/validation-rules")
+@limiter.limit("30/minute")
+async def validation_rules(request: Request):
+    """Get validation rules for frontend validation."""
+    return {
+        "success": True,
+        "rules": {
+            "email": {
+                "required": True,
+                "format": "email",
+                "description": "Valid email address"
+            },
+            "password": {
+                "required": True,
+                "min_length": 8,
+                "max_length": 100,
+                "requirements": [
+                    "At least 8 characters",
+                    "At least one lowercase letter",
+                    "At least one uppercase letter",
+                    "At least one number",
+                    "At least one special character"
+                ],
+                "description": "Strong password with mixed case, numbers, and special characters"
+            },
+            "first_name": {
+                "required": True,
+                "min_length": 1,
+                "max_length": 100,
+                "description": "First name (1-100 characters)"
+            },
+            "last_name": {
+                "required": True,
+                "min_length": 1,
+                "max_length": 100,
+                "description": "Last name (1-100 characters)"
+            },
+            "firm_name": {
+                "required": False,
+                "max_length": 255,
+                "description": "Optional firm name (max 255 characters)"
+            },
+            "license_number": {
+                "required": False,
+                "max_length": 50,
+                "description": "Optional license number (max 50 characters)"
+            },
+            "phone": {
+                "required": False,
+                "max_length": 20,
+                "description": "Optional phone number (max 20 characters)"
+            }
+        }
     }
 
 
@@ -125,6 +253,8 @@ async def root():
         "docs": "/docs",
         "redoc": "/redoc",
         "health": "/health",
+        "debug": "/debug" if settings.debug else None,
+        "validation_rules": "/validation-rules"
     }
 
 

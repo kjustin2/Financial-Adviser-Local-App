@@ -27,7 +27,21 @@
       "Bash(npm install:*)",
       "Bash(touch:*)",
       "Bash(pkill:*)",
-      "Bash(timeout 10 poetry run uvicorn app.main:app --reload --port 8000)"
+      "Bash(timeout 10 poetry run uvicorn app.main:app --reload --port 8000)",
+      "mcp__ide__getDiagnostics",
+      "Bash(alembic revision:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx playwright:*)",
+      "Bash(/dev/null)",
+      "Bash(sudo npx playwright:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_install",
+      "Bash(npx tsc:*)",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_select_option"
     ],
     "deny": []
   }

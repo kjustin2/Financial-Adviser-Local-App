@@ -27,46 +27,23 @@ class RiskLevel(str, enum.Enum):
     AGGRESSIVE = "aggressive"
 
 
-class RebalanceFrequency(str, enum.Enum):
-    """Rebalancing frequency options."""
-
-    MONTHLY = "monthly"
-    QUARTERLY = "quarterly"
-    SEMIANNUAL = "semiannual"
-    ANNUAL = "annual"
-
-
 class Portfolio(BaseModel):
-    """Portfolio model for managing investment portfolios."""
+    """Portfolio model for managing investment portfolios (simplified)."""
 
     __tablename__ = "portfolios"
 
     # User relationship
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
-    # Portfolio information
+    # Portfolio information (simplified)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    portfolio_type = Column(SQLEnum(PortfolioType), default=PortfolioType.INVESTMENT)
-
-    # Asset allocation target (JSON: {"stocks": 60, "bonds": 30, "cash": 10})
-    target_allocation = Column(JSON, nullable=True)
-
-    # Risk and rebalancing settings
-    risk_level = Column(SQLEnum(RiskLevel), default=RiskLevel.MODERATE)
-    benchmark_symbol = Column(String(10), nullable=True)  # e.g., "SPY" for S&P 500
-    rebalance_frequency = Column(
-        SQLEnum(RebalanceFrequency), default=RebalanceFrequency.QUARTERLY
-    )
-    rebalance_threshold = Column(Numeric(5, 2), default=5.00)  # 5% deviation threshold
+    portfolio_type = Column(SQLEnum(PortfolioType), default=PortfolioType.TAXABLE)
 
     # Relationships
     user = relationship("User", back_populates="portfolios")
     holdings = relationship(
         "Holding", back_populates="portfolio", cascade="all, delete-orphan"
-    )
-    transactions = relationship(
-        "Transaction", back_populates="portfolio", cascade="all, delete-orphan"
     )
     reports = relationship("Report", back_populates="portfolio")
 

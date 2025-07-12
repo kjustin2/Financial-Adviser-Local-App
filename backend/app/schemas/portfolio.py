@@ -1,35 +1,22 @@
-"""Portfolio schemas for portfolio management API."""
+"""Portfolio schemas for portfolio management API (simplified)."""
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 # Import enums from models
-from ..models.portfolio import PortfolioType, RebalanceFrequency, RiskLevel
+from ..models.portfolio import PortfolioType
 from .common import BaseSchema
 
 
 class PortfolioBase(BaseModel):
-    """Base portfolio schema with common fields."""
+    """Base portfolio schema with common fields (simplified)."""
 
     name: str = Field(min_length=1, max_length=255)
     description: Optional[str] = None
-    portfolio_type: Optional[PortfolioType] = PortfolioType.INVESTMENT
-    target_allocation: Optional[Dict[str, float]] = Field(
-        None,
-        description="Asset allocation percentages (e.g., {'stocks': 60, 'bonds': 30, 'cash': 10})",
-    )
-    risk_level: Optional[RiskLevel] = RiskLevel.MODERATE
-    benchmark_symbol: Optional[str] = Field(None, max_length=10)
-    rebalance_frequency: Optional[RebalanceFrequency] = RebalanceFrequency.QUARTERLY
-    rebalance_threshold: Optional[Decimal] = Field(
-        Decimal("5.00"),
-        ge=Decimal("1.00"),
-        le=Decimal("20.00"),
-        description="Rebalancing threshold percentage",
-    )
+    portfolio_type: Optional[PortfolioType] = PortfolioType.TAXABLE
 
 
 class PortfolioCreate(PortfolioBase):
@@ -39,33 +26,21 @@ class PortfolioCreate(PortfolioBase):
 
 
 class PortfolioUpdate(BaseModel):
-    """Schema for updating an existing portfolio."""
+    """Schema for updating an existing portfolio (simplified)."""
 
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     portfolio_type: Optional[PortfolioType] = None
-    target_allocation: Optional[Dict[str, float]] = None
-    risk_level: Optional[RiskLevel] = None
-    benchmark_symbol: Optional[str] = Field(None, max_length=10)
-    rebalance_frequency: Optional[RebalanceFrequency] = None
-    rebalance_threshold: Optional[Decimal] = Field(
-        None, ge=Decimal("1.00"), le=Decimal("20.00")
-    )
 
 
 class PortfolioResponse(BaseSchema):
-    """Schema for portfolio response."""
+    """Schema for portfolio response (simplified)."""
 
     id: int
     user_id: int
     name: str
     description: Optional[str] = None
     portfolio_type: PortfolioType
-    target_allocation: Optional[Dict[str, float]] = None
-    risk_level: RiskLevel
-    benchmark_symbol: Optional[str] = None
-    rebalance_frequency: RebalanceFrequency
-    rebalance_threshold: Decimal
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -81,32 +56,21 @@ class PortfolioResponse(BaseSchema):
 
 
 class PortfolioPerformance(BaseSchema):
-    """Portfolio performance metrics."""
+    """Portfolio performance metrics (simplified)."""
 
     portfolio_id: int
     current_value: Decimal
     cost_basis: Decimal
     unrealized_gain_loss: Decimal
     unrealized_return_percent: Decimal
-    day_change: Optional[Decimal] = None
-    day_change_percent: Optional[Decimal] = None
-    ytd_return: Optional[Decimal] = None
-    ytd_return_percent: Optional[Decimal] = None
-    benchmark_return: Optional[Decimal] = None
-    alpha: Optional[Decimal] = None
-    beta: Optional[Decimal] = None
-    sharpe_ratio: Optional[Decimal] = None
 
 
 class PortfolioAllocation(BaseModel):
-    """Portfolio asset allocation breakdown."""
+    """Portfolio allocation breakdown (simplified)."""
 
-    asset_class: str
+    symbol: str
     current_value: Decimal
-    target_percent: Optional[float] = None
     current_percent: float
-    drift: Optional[float] = None
-    needs_rebalancing: bool = False
 
 
 class PortfolioSummary(BaseSchema):
@@ -128,3 +92,6 @@ class PortfolioList(BaseModel):
     portfolios: List[PortfolioSummary]
     total_count: int
     total_value: Decimal
+    total_gain_loss: Decimal = Field(description="Total unrealized gain/loss across all portfolios")
+    total_return_percent: Decimal = Field(description="Total return percentage across all portfolios")
+    portfolios_count: int = Field(description="Number of active portfolios")

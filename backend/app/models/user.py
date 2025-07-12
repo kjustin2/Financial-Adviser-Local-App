@@ -17,16 +17,23 @@ class User(BaseModel):
     last_name = Column(String(100), nullable=False)
     phone = Column(String(20), nullable=True)
 
-    # Personal financial information
-    date_of_birth = Column(String(10), nullable=True)  # YYYY-MM-DD format
-    annual_income = Column(String(20), nullable=True)  # Encrypted
-    risk_tolerance = Column(
-        String(20), nullable=True
-    )  # conservative, moderate, aggressive
+    # Investment profile for recommendations (simplified)
     investment_experience = Column(
-        String(20), nullable=True
+        String(20), nullable=False, default='intermediate'
     )  # beginner, intermediate, advanced
-    financial_goals = Column(Text, nullable=True)  # General financial objectives
+    risk_tolerance = Column(
+        String(20), nullable=False, default='moderate'
+    )  # conservative, moderate, aggressive
+    investment_style = Column(
+        String(50), nullable=False, default='balanced'
+    )  # conservative, balanced, growth, aggressive
+    financial_goals = Column(Text, nullable=True)  # JSON array of goals
+    net_worth_range = Column(
+        String(20), nullable=False, default='200k_500k'
+    )  # under_50k, 50k_200k, 200k_500k, 500k_plus
+    time_horizon = Column(
+        String(20), nullable=False, default='long_term'
+    )  # short_term, medium_term, long_term
 
     # Relationships - Direct ownership of portfolios
     portfolios = relationship(
@@ -34,9 +41,6 @@ class User(BaseModel):
     )
     reports = relationship(
         "Report", back_populates="user", cascade="all, delete-orphan"
-    )
-    goals = relationship(
-        "FinancialGoal", back_populates="user", cascade="all, delete-orphan"
     )
 
     @property

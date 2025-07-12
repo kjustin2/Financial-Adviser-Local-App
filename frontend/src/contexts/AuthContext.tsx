@@ -23,8 +23,16 @@ interface AuthContextType {
 interface RegisterData {
   email: string
   password: string
-  firstName: string
-  lastName: string
+  first_name: string
+  last_name: string
+  investment_experience?: string
+  risk_tolerance?: string
+  investment_style?: string
+  financial_goals?: string[]
+  net_worth_range?: string
+  time_horizon?: string
+  portfolio_complexity?: string
+  phone?: string
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -56,18 +64,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       setLoading(true)
-      const response = await apiService.post('/api/v1/auth/login', {
-        username: email, // FastAPI OAuth2PasswordRequestForm expects 'username'
+      const response = await apiService.post('/api/v1/auth/login/json', {
+        email: email,
         password: password
       }, { skipAuth: true })
 
       const { access_token, user: userData } = response
       
+      // Transform backend response to match frontend interface
+      const transformedUser = {
+        id: userData.id.toString(),
+        email: userData.email,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        fullName: `${userData.first_name} ${userData.last_name}`
+      }
+      
       setToken(access_token)
-      setUser(userData)
+      setUser(transformedUser)
       
       localStorage.setItem('access_token', access_token)
-      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('user', JSON.stringify(transformedUser))
       
       logger.userAction('User login successful', 'Auth', { userId: userData.id })
     } catch (error) {
@@ -90,17 +107,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (userData: RegisterData) => {
     try {
       setLoading(true)
-      const response = await apiService.post('/api/v1/auth/register', userData, { 
+      
+      // Pass the data directly as it already matches backend expectations
+      const backendData = userData
+      
+      const response = await apiService.post('/api/v1/auth/register', backendData, { 
         skipAuth: true 
       })
 
       const { access_token, user: newUser } = response
       
+      // Transform backend response to match frontend interface
+      const transformedUser = {
+        id: newUser.id.toString(),
+        email: newUser.email,
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+        fullName: `${newUser.first_name} ${newUser.last_name}`
+      }
+      
       setToken(access_token)
-      setUser(newUser)
+      setUser(transformedUser)
       
       localStorage.setItem('access_token', access_token)
-      localStorage.setItem('user', JSON.stringify(newUser))
+      localStorage.setItem('user', JSON.stringify(transformedUser))
       
       logger.userAction('User registration successful', 'Auth', { userId: newUser.id })
     } catch (error) {

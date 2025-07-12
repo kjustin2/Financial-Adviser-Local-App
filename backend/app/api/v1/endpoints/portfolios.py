@@ -41,6 +41,8 @@ async def get_portfolios(
 
     portfolio_summaries = []
     total_value = Decimal("0.00")
+    total_gain_loss = Decimal("0.00")
+    total_cost_basis = Decimal("0.00")
 
     for portfolio in portfolios:
         summary = PortfolioSummary(
@@ -55,11 +57,21 @@ async def get_portfolios(
         )
         portfolio_summaries.append(summary)
         total_value += portfolio.total_value
+        total_gain_loss += portfolio.unrealized_gain_loss
+        total_cost_basis += portfolio.total_cost_basis
+
+    # Calculate total return percentage
+    total_return_percent = Decimal("0.00")
+    if total_cost_basis > 0:
+        total_return_percent = (total_gain_loss / total_cost_basis) * Decimal("100")
 
     return PortfolioList(
         portfolios=portfolio_summaries,
         total_count=len(portfolios),
         total_value=total_value,
+        total_gain_loss=total_gain_loss,
+        total_return_percent=total_return_percent,
+        portfolios_count=len(portfolios),
     )
 
 

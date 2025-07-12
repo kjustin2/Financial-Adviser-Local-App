@@ -2,10 +2,10 @@
 
 
 from sqlalchemy import Boolean, Column, DateTime, Integer
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
-Base = declarative_base()
+# Import Base from database.py to ensure consistency
+from ..database import Base
 
 
 class BaseModel(Base):

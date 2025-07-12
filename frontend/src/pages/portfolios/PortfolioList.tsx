@@ -1,47 +1,17 @@
-import { useState } from 'react'
-import { Plus, PieChart, TrendingUp, TrendingDown } from 'lucide-react'
+import { Plus, PieChart, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-
-interface Portfolio {
-  id: number
-  name: string
-  portfolio_type: string
-  current_value: number
-  unrealized_gain_loss: number
-  unrealized_return_percent: number
-  holdings_count: number
-  last_updated: string
-}
+import { usePortfolios } from '@/hooks/usePortfolios'
+import { CreatePortfolioModal } from '@/components/portfolios/CreatePortfolioModal'
 
 export function PortfolioList() {
-  const [portfolios] = useState<Portfolio[]>([
-    // Mock data for now
-    {
-      id: 1,
-      name: "Growth Portfolio",
-      portfolio_type: "investment",
-      current_value: 125000,
-      unrealized_gain_loss: 15000,
-      unrealized_return_percent: 13.6,
-      holdings_count: 8,
-      last_updated: "2025-01-07T10:30:00Z"
-    },
-    {
-      id: 2,
-      name: "Retirement 401k",
-      portfolio_type: "retirement",
-      current_value: 75000,
-      unrealized_gain_loss: -2500,
-      unrealized_return_percent: -3.2,
-      holdings_count: 5,
-      last_updated: "2025-01-07T10:30:00Z"
-    }
-  ])
+  const { data: portfolioData, isLoading, error } = usePortfolios()
+  
+  const portfolios = portfolioData?.portfolios || []
 
-  const totalValue = portfolios.reduce((sum, p) => sum + p.current_value, 0)
-  const totalGainLoss = portfolios.reduce((sum, p) => sum + p.unrealized_gain_loss, 0)
-  const totalReturnPercent = totalValue > 0 ? (totalGainLoss / (totalValue - totalGainLoss)) * 100 : 0
+  const totalValue = portfolioData?.total_value || 0
+  const totalGainLoss = portfolioData?.total_gain_loss || 0
+  const totalReturnPercent = portfolioData?.total_return_percent || 0
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -52,6 +22,63 @@ export function PortfolioList() {
 
   const formatPercent = (percent: number) => {
     return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              My Portfolios
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading your portfolios...
+            </p>
+          </div>
+          <CreatePortfolioModal>
+            <Button disabled>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Portfolio
+            </Button>
+          </CreatePortfolioModal>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="p-6 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              My Portfolios
+            </h1>
+          </div>
+          <CreatePortfolioModal />
+        </div>
+        <Card className="border-red-200">
+          <div className="flex items-center space-x-2 p-6">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <div>
+              <p className="text-red-800 font-medium">Failed to load portfolios</p>
+              <p className="text-red-600 text-sm">Please try refreshing the page or contact support if the issue persists.</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -66,10 +93,7 @@ export function PortfolioList() {
             Manage your investment portfolios and track performance
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Portfolio
-        </Button>
+        <CreatePortfolioModal />
       </div>
 
       {/* Summary Cards */}
@@ -144,10 +168,12 @@ export function PortfolioList() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Get started by creating your first investment portfolio
             </p>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Your First Portfolio
-            </Button>
+            <CreatePortfolioModal>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Portfolio
+              </Button>
+            </CreatePortfolioModal>
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -175,9 +201,12 @@ export function PortfolioList() {
                 </div>
                 
                 <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-                  <span>{portfolio.holdings_count} holdings</span>
+                  <span>{(portfolio as any).holdings_count || 0} holdings</span>
                   <span>
-                    Updated {new Date(portfolio.last_updated).toLocaleDateString()}
+                    {(portfolio as any).last_updated ? 
+                      `Updated ${new Date((portfolio as any).last_updated).toLocaleDateString()}` :
+                      'Recently created'
+                    }
                   </span>
                 </div>
               </Card>

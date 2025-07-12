@@ -69,13 +69,8 @@ class Holding(BaseModel):
     current_price = Column(Numeric(15, 4), nullable=True)
     last_price_update = Column(DateTime, nullable=True)
 
-    # Classification
-    sector = Column(String(100), nullable=True)
-    asset_class = Column(SQLEnum(AssetClass), nullable=True)
-
     # Relationships
     portfolio = relationship("Portfolio", back_populates="holdings")
-    transactions = relationship("Transaction", back_populates="holding")
 
     @property
     def total_cost_basis(self) -> Numeric:

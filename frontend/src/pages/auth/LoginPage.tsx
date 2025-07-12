@@ -10,6 +10,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({})
 
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -17,9 +18,34 @@ export function LoginPage() {
 
   const from = location.state?.from?.pathname || '/'
 
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {}
+    
+    if (!email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Invalid email format'
+    }
+    
+    if (!password.trim()) {
+      newErrors.password = 'Password is required'
+    } else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters'
+    }
+    
+    setValidationErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setValidationErrors({})
+
+    if (!validateForm()) {
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -61,11 +87,22 @@ export function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (validationErrors.email) {
+                    setValidationErrors(prev => ({ ...prev, email: '' }))
+                  }
+                }}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  validationErrors.email
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
                 placeholder="Enter your email"
               />
+              {validationErrors.email && (
+                <div className="text-red-500 text-sm">{validationErrors.email}</div>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -76,11 +113,22 @@ export function LoginPage() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (validationErrors.password) {
+                    setValidationErrors(prev => ({ ...prev, password: '' }))
+                  }
+                }}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  validationErrors.password
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
                 placeholder="Enter your password"
               />
+              {validationErrors.password && (
+                <div className="text-red-500 text-sm">{validationErrors.password}</div>
+              )}
             </div>
             
             <Button

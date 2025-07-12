@@ -4,7 +4,7 @@ import { AuthGuard } from '@/components/auth/AuthGuard'
 import { Layout } from '@/components/layout/Layout'
 import { Dashboard } from '@/pages/Dashboard'
 import { PortfolioList } from '@/pages/portfolios/PortfolioList'
-import { GoalList } from '@/pages/goals/GoalList'
+import { ProfileSettings } from '@/pages/settings/ProfileSettings'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { RegisterPage } from '@/pages/auth/RegisterPage'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -25,10 +25,9 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/portfolios" element={<PortfolioList />} />
-                  <Route path="/goals" element={<GoalList />} />
-                  <Route path="/market" element={<div>Market Data (Coming Soon)</div>} />
+                  <Route path="/recommendations" element={<div>Recommendations (Coming Soon)</div>} />
                   <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
-                  <Route path="/settings" element={<div>Settings (Coming Soon)</div>} />
+                  <Route path="/settings" element={<ProfileSettings />} />
                 </Routes>
               </Layout>
             </AuthGuard>

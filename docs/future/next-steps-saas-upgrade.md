@@ -1,42 +1,47 @@
-# Next Steps: MVP to SaaS Upgrade Path
+# Next Steps: Individual Investor Platform to SaaS Upgrade Path
 
-This document outlines the strategic roadmap for upgrading our Financial Adviser Local Application MVP to a full-featured SaaS platform, based on the analysis in `saas-expansion-analysis.md`.
+This document outlines the strategic roadmap for upgrading our Personal Financial Management Application from a local-first individual investor tool to a comprehensive SaaS platform serving high-net-worth individuals (200k+ net worth) and their advisors.
 
 ## Current MVP Status
 
 ### ✅ Completed Core Infrastructure
-- **Backend Architecture**: FastAPI + SQLAlchemy with SQLite
-- **Frontend Foundation**: React + TypeScript + Vite + Tailwind CSS
-- **Authentication System**: JWT-based user authentication
-- **Database Models**: Complete schema for clients, portfolios, holdings, goals
-- **API Framework**: RESTful API with OpenAPI documentation
-- **Security Layer**: AES-256 encrypted configuration storage
+- **Backend Architecture**: FastAPI + SQLAlchemy with SQLite (production-ready)
+- **Frontend Foundation**: React + TypeScript + Vite + Tailwind CSS + shadcn/ui
+- **Authentication System**: Complete JWT-based individual investor authentication
+- **Database Models**: Full schema for users, portfolios, holdings, goals, transactions
+- **API Framework**: Comprehensive RESTful API with OpenAPI documentation
+- **Security Layer**: AES-256 encrypted configuration + local-first architecture
+- **Testing Infrastructure**: 26+ backend tests + 126 E2E Playwright tests
 
-### 🚧 MVP Features in Development
-- Portfolio management and optimization engine
-- Market data integration (Alpha Vantage, Polygon.io, IEX Cloud)
-- Financial goal tracking and progress monitoring
-- Investment holding management with real-time pricing
-- Basic reporting and dashboard functionality
+### ✅ Implemented MVP Features
+- **Individual Investor Authentication**: Complete registration with investment profiling
+- **Investment Recommendation Engine**: Personalized recommendations for 200k+ net worth users
+- **Portfolio Management API**: Full CRUD operations with performance calculations
+- **Financial Goal Tracking**: Complete goal management with progress monitoring
+- **Advanced Logging System**: Professional-grade request tracking and security monitoring
+- **Comprehensive Input Validation**: Multi-layer validation for financial data integrity
 
-## Phase 1: Complete MVP Features (Next 4-6 weeks)
+## Phase 1: Complete High-Net-Worth Individual Features (Next 4-6 weeks)
 
-### Priority 1: Core Financial Engine
-- [ ] **Market Data Service**: Implement real-time stock price feeds
-- [ ] **Portfolio Optimization**: Asset allocation analysis and rebalancing
-- [ ] **Performance Calculations**: ROI, risk metrics, benchmark comparisons
-- [ ] **Goal Planning**: Financial goal tracking with progress visualization
+### Priority 1: Advanced Portfolio Analytics for 200k+ Investors
+- [ ] **Market Data Service**: Real-time stock/ETF/bond price feeds (Alpha Vantage, Yahoo Finance)
+- [ ] **Advanced Portfolio Metrics**: Sharpe ratio, beta, alpha, correlation analysis
+- [ ] **Tax-Loss Harvesting**: Automated identification of tax optimization opportunities
+- [ ] **Asset Allocation Rebalancing**: Sophisticated rebalancing with tax considerations
+- [ ] **Performance Benchmarking**: Compare against appropriate indices and peer groups
 
-### Priority 2: Enhanced User Experience
-- [ ] **Advanced UI Components**: Charts, data tables, forms
-- [ ] **Dashboard Analytics**: Portfolio performance visualizations
-- [ ] **Responsive Design**: Mobile-friendly interface
-- [ ] **Data Import/Export**: CSV upload and report generation
+### Priority 2: High-Net-Worth User Experience
+- [ ] **Professional Dashboard**: Comprehensive portfolio analytics and visualizations
+- [ ] **Advanced Goal Planning**: Retirement, education, estate planning calculators
+- [ ] **Tax Planning Tools**: Capital gains/losses, asset location optimization
+- [ ] **Risk Assessment**: Sophisticated risk profiling for complex portfolios
+- [ ] **Reporting Suite**: Professional-grade reports suitable for tax preparation
 
-### Priority 3: Local Distribution
-- [ ] **Standalone Executable**: PyInstaller packaging for Windows/macOS/Linux
-- [ ] **Installation Packages**: Professional installers for end users
-- [ ] **Documentation**: User guides and troubleshooting
+### Priority 3: Privacy-First Distribution
+- [ ] **Standalone Executable**: Secure PyInstaller packaging for all platforms
+- [ ] **Professional Installation**: Signed installers with data encryption
+- [ ] **Data Migration Tools**: Import from popular platforms (Personal Capital, Mint, etc.)
+- [ ] **Documentation**: Comprehensive user guides for high-net-worth individuals
 
 ## Phase 2: Cloud Infrastructure Preparation (6-12 weeks)
 
@@ -158,15 +163,17 @@ class Settings(BaseSettings):
 
 ## Business Considerations
 
-### Pricing Strategy
-- **Starter**: $49/month - Up to 25 clients, basic features
-- **Professional**: $149/month - Up to 100 clients, advanced analytics
-- **Enterprise**: $399/month - Unlimited clients, full feature set
+### Pricing Strategy for High-Net-Worth Individuals
+- **Individual**: $29/month - Personal financial management for 200k+ net worth individuals
+- **Family**: $79/month - Multi-account management, spouse/family member access
+- **Premium**: $149/month - Advanced tax optimization, estate planning tools
+- **Advisory**: $299/month - Advisor integration, client portal, professional reporting
 
 ### Migration Incentives
 - **Free Migration**: Assist local app users in transitioning to SaaS
-- **Grandfathered Pricing**: Special rates for early adopters
-- **Data Export**: Always allow users to export their data
+- **Grandfathered Pricing**: Special rates for early adopters (lifetime 50% discount)
+- **Data Sovereignty**: Always allow users to export their data or continue local usage
+- **Privacy Guarantee**: No sale of personal financial data, transparent privacy policy
 
 ### Support Strategy
 - **Documentation**: Comprehensive migration guides
