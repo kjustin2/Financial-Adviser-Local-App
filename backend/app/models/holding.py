@@ -1,6 +1,7 @@
 """Holding model for individual security positions."""
 
 import enum
+from decimal import Decimal
 
 from sqlalchemy import (
     Column,
@@ -73,26 +74,26 @@ class Holding(BaseModel):
     portfolio = relationship("Portfolio", back_populates="holdings")
 
     @property
-    def total_cost_basis(self) -> Numeric:
+    def total_cost_basis(self) -> Decimal:
         """Calculate total cost basis for this holding."""
         return self.quantity * self.cost_basis
 
     @property
-    def current_value(self) -> Numeric:
+    def current_value(self) -> Decimal:
         """Calculate current market value of holding."""
         price = self.current_price or self.cost_basis
         return self.quantity * price
 
     @property
-    def unrealized_gain_loss(self) -> Numeric:
+    def unrealized_gain_loss(self) -> Decimal:
         """Calculate unrealized gain/loss for this holding."""
         return self.current_value - self.total_cost_basis
 
     @property
-    def unrealized_gain_loss_percent(self) -> Numeric:
+    def unrealized_gain_loss_percent(self) -> Decimal:
         """Calculate unrealized gain/loss percentage."""
         if self.total_cost_basis == 0:
-            return Numeric("0.00")
+            return Decimal("0.00")
         return (self.unrealized_gain_loss / self.total_cost_basis) * 100
 
     @property

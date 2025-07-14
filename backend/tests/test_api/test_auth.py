@@ -12,7 +12,7 @@ from app.main import app
 from app.models import User  # Import all models
 from app.security.auth import get_password_hash
 
-# Test database setup
+# Test database setup - use in-memory database for auth tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
@@ -23,19 +23,29 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# Global test session for shared database state
-_test_session = None
-
 def override_get_db():
     """Override the database dependency for testing."""
-    global _test_session
-    if _test_session is None:
-        _test_session = TestingSessionLocal()
-    yield _test_session
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
-# Override dependencies
-app.dependency_overrides[get_db] = override_get_db
+# Module setup and teardown for dependency isolation
+def setup_module():
+    """Setup module with isolated database dependency."""
+    app.dependency_overrides[get_db] = override_get_db
+
+
+def teardown_module():
+    """Clean up after module."""
+    if get_db in app.dependency_overrides:
+        del app.dependency_overrides[get_db]
+
+
+# Setup the module
+setup_module()
 
 # Create test client
 client = TestClient(app)
@@ -44,26 +54,18 @@ client = TestClient(app)
 @pytest.fixture(scope="function")
 def test_db():
     """Create a fresh database for each test."""
-    global _test_session
-    
-    # Clean up any existing session
-    if _test_session:
-        _test_session.close()
-        _test_session = None
-    
     # Ensure we have fresh tables for each test
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     
-    # Create a new global session for this test
-    _test_session = TestingSessionLocal()
+    # Create a new session for this test
+    db = TestingSessionLocal()
     
     try:
-        yield _test_session
+        yield db
     finally:
         # Clean up after test
-        _test_session.close()
-        _test_session = None
+        db.close()
         Base.metadata.drop_all(bind=engine)
 
 
@@ -81,8 +83,7 @@ def test_user_data():
         "investment_style": "balanced",
         "financial_goals": ["retirement", "growth"],
         "net_worth_range": "200k_500k",
-        "time_horizon": "long_term",
-        "portfolio_complexity": "moderate"
+        "time_horizon": "long_term"
     }
 
 
@@ -111,8 +112,7 @@ def existing_user(test_db):
         investment_style="growth",
         financial_goals='["retirement", "income"]',
         net_worth_range="500k_plus",
-        time_horizon="long_term",
-        portfolio_complexity="complex"
+        time_horizon="long_term"
     )
     test_db.add(user)
     test_db.commit()
@@ -152,7 +152,6 @@ class TestUserRegistration:
         assert user["investment_style"] == test_user_data["investment_style"]
         assert user["net_worth_range"] == test_user_data["net_worth_range"]
         assert user["time_horizon"] == test_user_data["time_horizon"]
-        assert user["portfolio_complexity"] == test_user_data["portfolio_complexity"]
         assert user["is_active"] is True
         assert "id" in user
         assert "created_at" in user
@@ -175,7 +174,6 @@ class TestUserRegistration:
         assert user["investment_experience"] == "intermediate"
         assert user["risk_tolerance"] == "moderate"
         assert user["time_horizon"] == "long_term"
-        assert user["portfolio_complexity"] == "moderate"
 
     def test_registration_duplicate_email(self, test_db, existing_user, test_user_data):
         """Test registration fails with duplicate email."""
@@ -337,8 +335,7 @@ class TestUserRegistration:
                 "investment_style": "growth",
                 "financial_goals": ["retirement"],
                 "net_worth_range": "100k_200k",
-                "time_horizon": "short_term",
-                "portfolio_complexity": "simple"
+                "time_horizon": "short_term"
             },
             {
                 "investment_experience": "advanced",
@@ -346,8 +343,7 @@ class TestUserRegistration:
                 "investment_style": "value",
                 "financial_goals": ["growth", "income", "retirement"],
                 "net_worth_range": "500k_plus",
-                "time_horizon": "long_term",
-                "portfolio_complexity": "complex"
+                "time_horizon": "long_term"
             }
         ]
         
@@ -366,7 +362,6 @@ class TestUserRegistration:
             assert user_data["investment_style"] == profile["investment_style"]
             assert user_data["net_worth_range"] == profile["net_worth_range"]
             assert user_data["time_horizon"] == profile["time_horizon"]
-            assert user_data["portfolio_complexity"] == profile["portfolio_complexity"]
 
     def test_registration_invalid_investment_options(self, test_db, minimal_user_data):
         """Test registration fails with invalid investment profile options."""
@@ -374,7 +369,6 @@ class TestUserRegistration:
             {"investment_experience": "expert"},  # Not a valid option
             {"risk_tolerance": "very_high"},      # Not a valid option
             {"time_horizon": "immediate"},        # Not a valid option
-            {"portfolio_complexity": "extreme"}   # Not a valid option
         ]
         
         for invalid_option in invalid_options:

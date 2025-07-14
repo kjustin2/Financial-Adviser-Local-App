@@ -1,6 +1,6 @@
 """Authentication schemas for login and user management."""
 
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, Field
@@ -23,6 +23,7 @@ class UserRegister(BaseModel):
     first_name: str = Field(min_length=1, max_length=100)
     last_name: str = Field(min_length=1, max_length=100)
     phone: Optional[str] = Field(None, max_length=20)
+    date_of_birth: Optional[date] = Field(None, description="Date of birth for age-based recommendations")
     
     # Individual investor specific fields
     investment_experience: Optional[str] = Field(
@@ -57,6 +58,7 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)
     phone: Optional[str] = Field(None, max_length=20)
+    date_of_birth: Optional[date] = Field(None, description="Date of birth for age-based recommendations")
     
     # Individual investor specific fields
     investment_experience: Optional[str] = Field(None)
@@ -91,6 +93,7 @@ class UserResponse(BaseSchema):
     first_name: str
     last_name: str
     phone: Optional[str] = None
+    date_of_birth: Optional[date] = None
     
     # Individual investor profile
     investment_experience: Optional[str] = None

@@ -19,14 +19,8 @@ interface ProfileFormData {
   firstName: string
   lastName: string
   email: string
-  phone: string
-  dateOfBirth: string
   investmentExperience: string
   riskTolerance: string
-  investmentGoals: string
-  annualIncome: string
-  netWorth: string
-  employmentStatus: string
 }
 
 export function ProfileSettings() {
@@ -40,14 +34,8 @@ export function ProfileSettings() {
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
-    dateOfBirth: '',
     investmentExperience: '',
     riskTolerance: '',
-    investmentGoals: '',
-    annualIncome: '',
-    netWorth: '',
-    employmentStatus: '',
   })
 
   useEffect(() => {
@@ -56,14 +44,8 @@ export function ProfileSettings() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        phone: user.phone || '',
-        dateOfBirth: user.dateOfBirth || '',
         investmentExperience: user.investmentExperience || '',
         riskTolerance: user.riskTolerance || '',
-        investmentGoals: user.investmentGoals || '',
-        annualIncome: user.annualIncome || '',
-        netWorth: user.netWorth || '',
-        employmentStatus: user.employmentStatus || '',
       })
     }
   }, [user])
@@ -81,16 +63,12 @@ export function ProfileSettings() {
     setSuccess(false)
 
     try {
-      // Convert date format if needed
       const updateData = {
-        ...formData,
-        date_of_birth: formData.dateOfBirth || null,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
         investment_experience: formData.investmentExperience,
         risk_tolerance: formData.riskTolerance,
-        investment_goals: formData.investmentGoals,
-        annual_income: formData.annualIncome,
-        net_worth: formData.netWorth,
-        employment_status: formData.employmentStatus,
       }
 
       await apiService.put('/api/v1/auth/profile', updateData)
@@ -138,7 +116,7 @@ export function ProfileSettings() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
         <p className="text-muted-foreground">
-          Manage your personal information and investment preferences
+          Update your basic account information and investment preferences
         </p>
       </div>
 
@@ -191,35 +169,14 @@ export function ProfileSettings() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+              <Label htmlFor="email">Email Address *</Label>
               <Input
-                id="dateOfBirth"
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                required
               />
             </div>
           </CardContent>
@@ -229,6 +186,9 @@ export function ProfileSettings() {
         <Card>
           <CardHeader>
             <CardTitle>Investment Profile</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Basic preferences to personalize your investment experience
+            </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -242,10 +202,9 @@ export function ProfileSettings() {
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="beginner">Beginner (0-2 years)</SelectItem>
-                    <SelectItem value="intermediate">Intermediate (3-7 years)</SelectItem>
-                    <SelectItem value="advanced">Advanced (8+ years)</SelectItem>
-                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -266,85 +225,6 @@ export function ProfileSettings() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="investmentGoals">Investment Goals</Label>
-              <Textarea
-                id="investmentGoals"
-                value={formData.investmentGoals}
-                onChange={(e) => handleInputChange('investmentGoals', e.target.value)}
-                placeholder="Describe your primary investment goals (e.g., retirement, home purchase, wealth building)"
-                rows={3}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Financial Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Financial Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="annualIncome">Annual Income</Label>
-                <Select
-                  value={formData.annualIncome}
-                  onValueChange={(value) => handleInputChange('annualIncome', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your annual income range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="under_50k">Under $50,000</SelectItem>
-                    <SelectItem value="50k_100k">$50,000 - $100,000</SelectItem>
-                    <SelectItem value="100k_250k">$100,000 - $250,000</SelectItem>
-                    <SelectItem value="250k_500k">$250,000 - $500,000</SelectItem>
-                    <SelectItem value="over_500k">Over $500,000</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="netWorth">Net Worth</Label>
-                <Select
-                  value={formData.netWorth}
-                  onValueChange={(value) => handleInputChange('netWorth', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your net worth range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="under_100k">Under $100,000</SelectItem>
-                    <SelectItem value="100k_500k">$100,000 - $500,000</SelectItem>
-                    <SelectItem value="500k_1m">$500,000 - $1,000,000</SelectItem>
-                    <SelectItem value="1m_5m">$1,000,000 - $5,000,000</SelectItem>
-                    <SelectItem value="over_5m">Over $5,000,000</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="employmentStatus">Employment Status</Label>
-              <Select
-                value={formData.employmentStatus}
-                onValueChange={(value) => handleInputChange('employmentStatus', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your employment status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="employed_full_time">Employed Full-Time</SelectItem>
-                  <SelectItem value="employed_part_time">Employed Part-Time</SelectItem>
-                  <SelectItem value="self_employed">Self-Employed</SelectItem>
-                  <SelectItem value="unemployed">Unemployed</SelectItem>
-                  <SelectItem value="retired">Retired</SelectItem>
-                  <SelectItem value="student">Student</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </CardContent>
         </Card>

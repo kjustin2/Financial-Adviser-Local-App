@@ -4,7 +4,7 @@ import traceback
 from datetime import datetime
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
@@ -103,7 +103,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 # Health check endpoint
 @app.get("/health")
-@limiter.limit("30/minute")
+@limiter.limit("1000/minute")
 async def health_check(request: Request):
     """Enhanced health check endpoint with system status."""
     from .database import engine
@@ -139,7 +139,7 @@ async def health_check(request: Request):
 
 # Debug endpoint for development
 @app.get("/debug")
-@limiter.limit("10/minute")
+@limiter.limit("500/minute")
 async def debug_info(request: Request):
     """Debug information endpoint (development only)."""
     if not settings.debug:
@@ -188,7 +188,7 @@ async def debug_info(request: Request):
 
 # Validation rules endpoint
 @app.get("/validation-rules")
-@limiter.limit("30/minute")
+@limiter.limit("1000/minute")
 async def validation_rules(request: Request):
     """Get validation rules for frontend validation."""
     return {

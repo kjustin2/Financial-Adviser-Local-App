@@ -8,14 +8,14 @@ export interface Portfolio {
   current_value: number
   total_cost_basis: number
   unrealized_gain_loss: number
-  unrealized_return_percent: number
+  unrealized_return_percent: number | null
 }
 
 export interface PortfolioListResponse {
   portfolios: Portfolio[]
   total_value: number
   total_gain_loss: number
-  total_return_percent: number
+  total_return_percent: number | null
   portfolios_count: number
 }
 

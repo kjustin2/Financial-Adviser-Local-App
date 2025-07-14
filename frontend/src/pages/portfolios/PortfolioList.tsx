@@ -1,10 +1,12 @@
-import { Plus, PieChart, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react'
+import { Plus, PieChart, TrendingUp, TrendingDown, AlertCircle, ExternalLink } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { usePortfolios } from '@/hooks/usePortfolios'
 import { CreatePortfolioModal } from '@/components/portfolios/CreatePortfolioModal'
 
 export function PortfolioList() {
+  const navigate = useNavigate()
   const { data: portfolioData, isLoading, error } = usePortfolios()
   
   const portfolios = portfolioData?.portfolios || []
@@ -20,14 +22,17 @@ export function PortfolioList() {
     }).format(amount)
   }
 
-  const formatPercent = (percent: number) => {
+  const formatPercent = (percent: number | null | undefined) => {
+    if (percent === null || percent === undefined || typeof percent !== 'number' || isNaN(percent)) {
+      return '0.00%'
+    }
     return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`
   }
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" data-testid="loading-state">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -38,7 +43,7 @@ export function PortfolioList() {
             </p>
           </div>
           <CreatePortfolioModal>
-            <Button disabled>
+            <Button disabled data-testid="create-portfolio-btn">
               <Plus className="h-4 w-4 mr-2" />
               Add Portfolio
             </Button>
@@ -93,7 +98,12 @@ export function PortfolioList() {
             Manage your investment portfolios and track performance
           </p>
         </div>
-        <CreatePortfolioModal />
+        <CreatePortfolioModal>
+          <Button data-testid="create-portfolio-btn">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Portfolio
+          </Button>
+        </CreatePortfolioModal>
       </div>
 
       {/* Summary Cards */}
@@ -160,7 +170,7 @@ export function PortfolioList() {
         </h2>
         
         {portfolios.length === 0 ? (
-          <Card className="p-12 text-center">
+          <Card className="p-12 text-center" data-testid="empty-portfolio-state">
             <PieChart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No portfolios yet
@@ -176,13 +186,19 @@ export function PortfolioList() {
             </CreatePortfolioModal>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-testid="portfolio-list">
             {portfolios.map((portfolio) => (
-              <Card key={portfolio.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <Card 
+                key={portfolio.id} 
+                className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
+                data-testid="portfolio-card"
+                onClick={() => navigate(`/portfolios/${portfolio.id}`)}
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                       {portfolio.name}
+                      <ExternalLink className="h-4 w-4 ml-2 text-gray-400" />
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">
                       {portfolio.portfolio_type.replace('_', ' ')}

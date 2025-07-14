@@ -2,6 +2,7 @@
 
 import enum
 
+from decimal import Decimal
 from sqlalchemy import JSON, Column, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
@@ -45,15 +46,20 @@ class Portfolio(BaseModel):
     holdings = relationship(
         "Holding", back_populates="portfolio", cascade="all, delete-orphan"
     )
-    reports = relationship("Report", back_populates="portfolio")
+    transactions = relationship(
+        "Transaction", 
+        back_populates="portfolio", 
+        cascade="all, delete-orphan",
+        foreign_keys="[Transaction.portfolio_id]"
+    )
 
     @property
-    def total_value(self) -> Numeric:
+    def total_value(self) -> Decimal:
         """Calculate total portfolio value from holdings."""
         if not self.holdings:
-            return Numeric("0.00")
+            return Decimal("0.00")
 
-        total = Numeric("0.00")
+        total = Decimal("0.00")
         for holding in self.holdings:
             if holding.is_active and holding.current_price:
                 total += holding.quantity * holding.current_price
@@ -63,27 +69,27 @@ class Portfolio(BaseModel):
         return total
 
     @property
-    def total_cost_basis(self) -> Numeric:
+    def total_cost_basis(self) -> Decimal:
         """Calculate total cost basis of portfolio."""
         if not self.holdings:
-            return Numeric("0.00")
+            return Decimal("0.00")
 
-        return sum(
-            holding.quantity * holding.cost_basis
-            for holding in self.holdings
-            if holding.is_active
-        )
+        total = Decimal("0.00")
+        for holding in self.holdings:
+            if holding.is_active:
+                total += holding.quantity * holding.cost_basis
+        return total
 
     @property
-    def unrealized_gain_loss(self) -> Numeric:
+    def unrealized_gain_loss(self) -> Decimal:
         """Calculate unrealized gain/loss."""
         return self.total_value - self.total_cost_basis
 
     @property
-    def unrealized_return_percent(self) -> Numeric:
+    def unrealized_return_percent(self) -> Decimal:
         """Calculate unrealized return percentage."""
         if self.total_cost_basis == 0:
-            return Numeric("0.00")
+            return Decimal("0.00")
         return (self.unrealized_gain_loss / self.total_cost_basis) * 100
 
     def __repr__(self):

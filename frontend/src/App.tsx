@@ -4,6 +4,9 @@ import { AuthGuard } from '@/components/auth/AuthGuard'
 import { Layout } from '@/components/layout/Layout'
 import { Dashboard } from '@/pages/Dashboard'
 import { PortfolioList } from '@/pages/portfolios/PortfolioList'
+import { PortfolioDetails } from '@/pages/portfolios/PortfolioDetails'
+import { GoalsList } from '@/pages/goals/GoalsList'
+import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
 import { ProfileSettings } from '@/pages/settings/ProfileSettings'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { RegisterPage } from '@/pages/auth/RegisterPage'
@@ -25,8 +28,9 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/portfolios" element={<PortfolioList />} />
-                  <Route path="/recommendations" element={<div>Recommendations (Coming Soon)</div>} />
-                  <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
+                  <Route path="/portfolios/:portfolioId" element={<PortfolioDetails />} />
+                  <Route path="/goals" element={<GoalsList />} />
+                  <Route path="/recommendations" element={<RecommendationsPage />} />
                   <Route path="/settings" element={<ProfileSettings />} />
                 </Routes>
               </Layout>

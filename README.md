@@ -1,6 +1,6 @@
-# Financial Adviser Local Application
+# Personal Financial Management Application
 
-A comprehensive local-first financial advisory application built with Python (FastAPI) and React (TypeScript). This application provides portfolio tracking, investment optimization, financial planning, and market data integration for financial advisors and their clients.
+A comprehensive local-first personal investment tracking application built with Python (FastAPI) and React (TypeScript). This application provides portfolio tracking, investment management, and personalized investment recommendations for individual investors looking to manage their own finances.
 
 ## 🏗️ Architecture
 
@@ -17,11 +17,14 @@ financial-adviser-app/
 ├── backend/                    # FastAPI application
 │   ├── app/
 │   │   ├── main.py            # FastAPI app entry point
-│   │   ├── models/            # SQLAlchemy models
+│   │   ├── models/            # SQLAlchemy models (User, Portfolio, Holding)
 │   │   ├── schemas/           # Pydantic schemas
 │   │   ├── api/               # API route handlers
-│   │   ├── services/          # Business logic
+│   │   ├── services/          # Business logic & recommendations
 │   │   └── security/          # Security utilities
+│   ├── tests/                 # Comprehensive test suite
+│   │   ├── test_api/          # API endpoint tests
+│   │   └── test_models/       # Model tests
 │   ├── pyproject.toml         # Poetry dependencies
 │   └── alembic/               # Database migrations
 ├── frontend/                  # React application
@@ -30,9 +33,12 @@ financial-adviser-app/
 │   │   ├── pages/            # Page components
 │   │   ├── services/         # API service layer
 │   │   └── types/            # TypeScript types
+│   ├── e2e/                  # Playwright E2E tests
+│   ├── tests/                # Unit tests
 │   ├── package.json
 │   └── vite.config.ts
-├── database/                  # SQLite files
+├── database/                  # SQLite files and logs
+├── docs/                     # Documentation
 ├── package.json              # Root scripts
 └── README.md
 ```
@@ -147,6 +153,7 @@ poetry run mypy .                      # Type checking
 # Testing
 poetry run pytest                      # Run all tests
 poetry run pytest --cov=app           # With coverage
+poetry run pytest tests/test_api/test_auth.py -v  # Specific tests
 ```
 
 #### Adding New Dependencies
@@ -177,6 +184,7 @@ npm run type-check                     # TypeScript checking
 npm run test                           # Vitest unit tests
 npm run test:ui                        # Vitest UI
 npm run test:coverage                  # Coverage report
+npm run test:e2e                       # Playwright E2E tests
 ```
 
 #### Adding New Dependencies
@@ -207,68 +215,85 @@ npm run build                          # Build frontend for production
 
 ## 🧪 Testing
 
-### Server Integration Testing
-```bash
-# Test both backend and frontend servers are working correctly
-npm run test:server
+The application includes comprehensive testing following 2025 best practices:
 
-# This will test:
-# - Backend health endpoints and API documentation
-# - Frontend build and accessibility
-# - CORS headers and rate limiting
-# - Performance thresholds
-# - Integration between services
+### Quick Test Commands
+
+**🚀 Optimized for Speed:**
+```bash
+# Fast E2E tests (Chromium only, optimized for development)
+npm run test:e2e:fast
+
+# All tests with maximum parallelization
+npm run test:e2e:parallel
+
+# Run all tests (backend + frontend + E2E)
+npm run test:all
 ```
 
-### Backend Testing
+### Backend Testing (pytest)
+
+**Comprehensive API Testing:**
+- **Auth Tests**: 26 tests covering registration, login, validation
+- **Portfolio Tests**: 44 tests covering CRUD, calculations, permissions
+- **Holdings Tests**: 68 tests covering all endpoints and edge cases
+
 ```bash
 cd backend
 
-# Run all tests
-poetry run pytest
+# Fast testing (optimized for development)
+poetry run pytest -x --tb=short --disable-warnings    # Stop at first failure
+poetry run pytest -n auto --tb=short                   # Parallel execution
+poetry run pytest --lf --tb=short                      # Run last failed tests
 
-# Run with coverage
-poetry run pytest --cov=app --cov-report=html
+# Standard testing
+poetry run pytest                          # Run all tests
+poetry run pytest -v                       # Verbose output
+poetry run pytest --cov=app --cov-report=html    # Coverage report
 
-# Run specific test file
-poetry run pytest tests/test_models/test_client.py
-
-# Run tests with verbose output
-poetry run pytest -v
-
-# Test specific components
-poetry run pytest tests/test_main.py        # Main application tests
-poetry run pytest tests/test_health.py      # Health check tests
+# Specific test execution
+poetry run pytest tests/test_api/test_auth.py         # Auth tests
+poetry run pytest tests/test_api/test_portfolios.py   # Portfolio tests
+poetry run pytest tests/test_api/test_holdings.py     # Holdings tests
 ```
 
 ### Frontend Testing
+
+**Unit Tests (Vitest):**
 ```bash
 cd frontend
 
-# Run unit tests
-npm run test
+# Fast unit tests (optimized for development)
+npm run test:fast              # No coverage, basic reporter
+npm run test:parallel          # Multi-threaded execution
 
-# Run tests in UI mode
-npm run test:ui
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run E2E tests (when configured)
-npm run test:e2e
+# Standard testing
+npm run test                   # Run all tests once
+npm run test:watch             # Watch mode for development
+npm run test:coverage          # Run with coverage report
 ```
 
-### Pre-Commit Quality Checks
+**E2E Tests (Playwright):**
 ```bash
-# Run comprehensive quality checks before committing
-npm run pre-commit
+# All E2E Tests
+npm run test:e2e                   # All browsers, full test suite
+npm run test:e2e:ui                # Interactive UI mode
+npm run test:e2e:debug             # Debug mode with browser
 
-# This will check:
-# - Backend: Type checking, linting, formatting, tests
-# - Frontend: TypeScript, ESLint, build tests, unit tests
-# - Security: Check for secrets in code
-# - Git: Verify staged changes and file sizes
+# Performance-Optimized Commands
+npm run test:e2e:fast              # Chromium only (fastest)
+npm run test:e2e:parallel          # All available CPU cores
+
+# Individual Test Files
+cd frontend && npx playwright test auth.spec.ts         # Authentication tests
+cd frontend && npx playwright test portfolios.spec.ts   # Portfolio tests
 ```
+
+### Test Coverage
+- **Backend API**: 138+ tests covering auth, portfolios, and holdings
+- **Frontend**: Unit tests for components and hooks
+- **E2E Tests**: 50+ tests covering complete user workflows
+- **Security**: SQL injection, XSS, and permission testing
 
 ## 🔧 Configuration
 
@@ -278,7 +303,7 @@ Create a `.env` file in the root directory:
 
 ```env
 # Application
-APP_NAME="Financial Adviser API"
+APP_NAME="Personal Financial Manager"
 DEBUG=false
 
 # Database
@@ -355,28 +380,74 @@ npm run build
 - **Input Validation**: Comprehensive validation using Pydantic schemas
 - **SQL Injection Protection**: SQLAlchemy ORM with parameterized queries
 - **CORS Configuration**: Restricted cross-origin requests
+- **User Data Isolation**: Each user can only access their own data
 
 ## 📊 Core Features
 
-### Current Implementation (MVP)
-- ✅ **User Authentication**: Registration, login, password management
-- ✅ **Client Management**: Add, edit, view, and manage advisory clients
-- ✅ **Database Infrastructure**: SQLAlchemy models with Alembic migrations
-- ✅ **API Foundation**: RESTful API with automatic OpenAPI documentation
-- ✅ **Frontend Foundation**: React app with TypeScript and Tailwind CSS
-- ✅ **Security Layer**: Encrypted configuration and JWT authentication
-- ✅ **Comprehensive Logging**: Backend and frontend logging with performance monitoring
-- ✅ **Error Handling**: Robust error handling with transaction management
-- ✅ **Testing Infrastructure**: Server testing, health checks, and pre-commit quality checks
-- ✅ **Development Tools**: Auto-formatting, linting, and debugging utilities
+### ✅ Current Implementation (Simplified MVP)
 
-### Planned Features
-- 📈 **Portfolio Management**: Investment portfolio tracking and analysis
-- 💰 **Holdings Management**: Individual security position tracking
-- 🎯 **Financial Goals**: Goal setting and progress tracking
-- 📊 **Market Data Integration**: Real-time stock prices and financial data
-- 📱 **Responsive Design**: Mobile-friendly interface
-- 📋 **Reporting**: Financial reports and export functionality
+**Authentication & User Management:**
+- ✅ **User Registration**: Complete with investment profile (risk tolerance, experience, goals)
+- ✅ **Secure Login**: JWT-based authentication with password strength validation
+- ✅ **Investment Profiling**: Risk tolerance, investment experience, financial goals, time horizon
+
+**Portfolio Management:**
+- ✅ **Portfolio CRUD**: Create, read, update, delete portfolios
+- ✅ **Portfolio Types**: Taxable, retirement, education accounts
+- ✅ **Value Calculations**: Real-time portfolio valuation and performance metrics
+- ✅ **User Isolation**: Users can only access their own portfolios
+
+**Holdings Management:**
+- ✅ **Security Tracking**: Stocks, bonds, ETFs, mutual funds, crypto
+- ✅ **Performance Metrics**: Gain/loss calculations, return percentages
+- ✅ **Price Updates**: Manual price entry with calculation updates
+- ✅ **Position Management**: Add, edit, delete individual holdings
+
+**Technical Infrastructure:**
+- ✅ **Comprehensive Testing**: 138+ backend tests, E2E testing with Playwright
+- ✅ **Database Migrations**: Alembic-managed schema evolution
+- ✅ **Comprehensive Logging**: Structured logging with request tracking
+- ✅ **Error Handling**: Robust error handling with user-friendly messages
+- ✅ **API Documentation**: Automatic OpenAPI/Swagger documentation
+
+### 🚧 In Development
+
+**Investment Recommendations (Core Feature):**
+- 🔄 **Personalized Recommendations**: Based on user investment profile and current portfolio
+- 🔄 **Risk Assessment**: Portfolio health scoring and risk analysis
+- 🔄 **Actionable Insights**: Specific suggestions for portfolio improvement
+
+### 📅 Planned Features
+
+**Market Data Integration:**
+- 📈 **Real-time Prices**: Automatic price updates via market data APIs
+- 📊 **Market Analytics**: Performance benchmarking and market analysis
+- 💰 **Dividend Tracking**: Dividend history and income projections
+
+**Advanced Portfolio Features:**
+- 🎯 **Asset Allocation**: Target allocation tracking and rebalancing suggestions
+- 📊 **Performance Analytics**: Historical performance tracking and analysis
+- 📋 **Reporting**: PDF reports and data export functionality
+
+**User Experience:**
+- 📱 **Mobile Responsive**: Optimized mobile interface
+- 🌙 **Dark Mode**: Dark theme support
+- 📧 **Notifications**: Portfolio alerts and recommendations
+
+## 🎯 Target Users
+
+This application is designed for **individual investors** who want to:
+- Track their personal investment portfolios
+- Get personalized investment recommendations
+- Maintain privacy with local-first data storage
+- Manage multiple account types (taxable, retirement, etc.)
+- Monitor investment performance and risk
+
+**Not suitable for:**
+- Financial advisors managing client accounts
+- Institutional investment management
+- Real-time trading applications
+- Professional portfolio management services
 
 ## 🤝 Contributing
 
@@ -479,7 +550,7 @@ rm -f database/financial_adviser.db
 poetry run alembic upgrade head
 
 # Check database connectivity
-poetry run python -c "from app.database import engine; print(engine.execute('SELECT 1').scalar())"
+poetry run python -c "from app.database import engine; print('Database OK')"
 ```
 
 #### Port Conflicts
@@ -493,17 +564,6 @@ kill -9 <PID>
 
 # Or use different ports
 VITE_PORT=3000 npm run dev:frontend    # Use port 3000 for frontend
-```
-
-#### Module Import Errors
-```bash
-# Backend: Check SQLAlchemy imports
-cd backend
-poetry run python -c "from sqlalchemy import Numeric; print('SQLAlchemy OK')"
-
-# Frontend: Check dependencies
-cd frontend
-npm list --depth=0
 ```
 
 ### Performance Issues
@@ -562,8 +622,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔮 Roadmap
 
-See [docs/features-roadmap.md](docs/features-roadmap.md) for detailed feature plans and [docs/saas-expansion-analysis.md](docs/saas-expansion-analysis.md) for future SaaS expansion possibilities.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architectural information and [docs/current/SIMPLIFICATION_PLAN.md](docs/current/SIMPLIFICATION_PLAN.md) for the current development plan focused on the Investment Recommendations System as the core value proposition.
 
 ---
 
-**Built with ❤️ for financial advisors and their clients**
+**Built with ❤️ for individual investors who want to take control of their financial future**

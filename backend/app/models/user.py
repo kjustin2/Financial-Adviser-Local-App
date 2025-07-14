@@ -1,6 +1,6 @@
 """User model for authentication and personal financial management."""
 
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, Date
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -16,6 +16,7 @@ class User(BaseModel):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     phone = Column(String(20), nullable=True)
+    date_of_birth = Column(Date, nullable=True)
 
     # Investment profile for recommendations (simplified)
     investment_experience = Column(
@@ -39,8 +40,8 @@ class User(BaseModel):
     portfolios = relationship(
         "Portfolio", back_populates="user", cascade="all, delete-orphan"
     )
-    reports = relationship(
-        "Report", back_populates="user", cascade="all, delete-orphan"
+    goals = relationship(
+        "Goal", back_populates="user", cascade="all, delete-orphan"
     )
 
     @property

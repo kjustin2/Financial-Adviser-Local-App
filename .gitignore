@@ -164,6 +164,9 @@ test-results/
 playwright-report/
 test-results.xml
 
+# Playwright auth state (contains sensitive session data)
+frontend/e2e/.auth/
+
 # Build artifacts
 build/
 dist/

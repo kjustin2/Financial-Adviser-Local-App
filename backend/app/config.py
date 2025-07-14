@@ -45,8 +45,8 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
-    # Rate limiting
-    rate_limit_requests: int = 100
+    # Rate limiting - Very relaxed for local development and testing
+    rate_limit_requests: int = 10000  # 10k requests per window
     rate_limit_window: int = 60  # seconds
 
     # Data directory

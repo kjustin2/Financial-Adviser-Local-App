@@ -4,17 +4,15 @@ import {
   LayoutDashboard, 
   PieChart, 
   Target, 
-  FileText, 
   Settings,
-  TrendingUp 
+  Lightbulb 
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'My Portfolios', href: '/portfolios', icon: PieChart },
   { name: 'My Goals', href: '/goals', icon: Target },
-  { name: 'Market Data', href: '/market', icon: TrendingUp },
-  { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'Recommendations', href: '/recommendations', icon: Lightbulb },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

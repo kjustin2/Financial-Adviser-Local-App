@@ -23,6 +23,82 @@ import {
 import { apiService } from '@/services/api'
 import { useQueryClient } from '@tanstack/react-query'
 
+// Account type configurations for MVP
+const ACCOUNT_TYPES = {
+  '401k': {
+    name: '401(k)',
+    description: 'Employer-sponsored retirement account',
+    risk_level: 'moderate',
+    tax_advantaged: true,
+    rebalance_frequency: 'quarterly',
+    rebalance_threshold: 5.0,
+  },
+  'traditional_ira': {
+    name: 'Traditional IRA',
+    description: 'Individual retirement account with tax-deferred growth',
+    risk_level: 'moderate',
+    tax_advantaged: true,
+    rebalance_frequency: 'semiannually',
+    rebalance_threshold: 5.0,
+  },
+  'roth_ira': {
+    name: 'Roth IRA',
+    description: 'After-tax retirement account with tax-free withdrawals',
+    risk_level: 'moderate',
+    tax_advantaged: true,
+    rebalance_frequency: 'semiannually',
+    rebalance_threshold: 5.0,
+  },
+  'brokerage': {
+    name: 'Brokerage Account',
+    description: 'Taxable investment account',
+    risk_level: 'moderate',
+    tax_advantaged: false,
+    rebalance_frequency: 'quarterly',
+    rebalance_threshold: 3.0,
+  },
+  'hsa': {
+    name: 'HSA (Health Savings Account)',
+    description: 'Triple tax-advantaged health savings account',
+    risk_level: 'conservative',
+    tax_advantaged: true,
+    rebalance_frequency: 'annually',
+    rebalance_threshold: 10.0,
+  },
+  '529_education': {
+    name: '529 Education',
+    description: 'Tax-advantaged education savings plan',
+    risk_level: 'moderate',
+    tax_advantaged: true,
+    rebalance_frequency: 'annually',
+    rebalance_threshold: 5.0,
+  },
+  'crypto': {
+    name: 'Cryptocurrency Wallet',
+    description: 'Digital asset portfolio',
+    risk_level: 'aggressive',
+    tax_advantaged: false,
+    rebalance_frequency: 'never',
+    rebalance_threshold: 20.0,
+  },
+  'real_estate': {
+    name: 'Real Estate',
+    description: 'Real estate investment portfolio',
+    risk_level: 'moderate',
+    tax_advantaged: false,
+    rebalance_frequency: 'annually',
+    rebalance_threshold: 15.0,
+  },
+  'other': {
+    name: 'Other Investment',
+    description: 'Other investment accounts',
+    risk_level: 'moderate',
+    tax_advantaged: false,
+    rebalance_frequency: 'quarterly',
+    rebalance_threshold: 5.0,
+  },
+} as const
+
 interface CreatePortfolioModalProps {
   children?: React.ReactNode
 }
@@ -33,14 +109,14 @@ export function CreatePortfolioModal({ children }: CreatePortfolioModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    portfolio_type: 'investment',
-    risk_level: 'moderate',
-    rebalance_frequency: 'quarterly',
-    rebalance_threshold: '5.0',
-    benchmark_symbol: '',
+    account_type: 'brokerage' as keyof typeof ACCOUNT_TYPES,
+    current_value: '',
   })
 
   const queryClient = useQueryClient()
+
+  // Get account type configuration
+  const selectedAccountConfig = ACCOUNT_TYPES[formData.account_type]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,10 +124,19 @@ export function CreatePortfolioModal({ children }: CreatePortfolioModalProps) {
 
     setIsLoading(true)
     try {
-      await apiService.post('/api/v1/portfolios/', {
-        ...formData,
-        rebalance_threshold: parseFloat(formData.rebalance_threshold),
-      })
+      // Build portfolio data with auto-determined characteristics
+      const portfolioData = {
+        name: formData.name,
+        description: formData.description || selectedAccountConfig.description,
+        portfolio_type: formData.account_type,
+        risk_level: selectedAccountConfig.risk_level,
+        rebalance_frequency: selectedAccountConfig.rebalance_frequency,
+        rebalance_threshold: selectedAccountConfig.rebalance_threshold,
+        tax_advantaged: selectedAccountConfig.tax_advantaged,
+        current_value: formData.current_value ? parseFloat(formData.current_value) : 0,
+      }
+
+      await apiService.post('/api/v1/portfolios/', portfolioData)
       
       // Refresh portfolios data
       queryClient.invalidateQueries({ queryKey: ['portfolios'] })
@@ -60,11 +145,8 @@ export function CreatePortfolioModal({ children }: CreatePortfolioModalProps) {
       setFormData({
         name: '',
         description: '',
-        portfolio_type: 'investment',
-        risk_level: 'moderate',
-        rebalance_frequency: 'quarterly',
-        rebalance_threshold: '5.0',
-        benchmark_symbol: '',
+        account_type: 'brokerage',
+        current_value: '',
       })
       setOpen(false)
     } catch (error) {
@@ -89,7 +171,7 @@ export function CreatePortfolioModal({ children }: CreatePortfolioModalProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" data-testid="create-portfolio-modal">
         <DialogHeader>
           <DialogTitle>Create New Portfolio</DialogTitle>
           <DialogDescription>
@@ -102,112 +184,83 @@ export function CreatePortfolioModal({ children }: CreatePortfolioModalProps) {
             <Label htmlFor="name">Portfolio Name *</Label>
             <Input
               id="name"
+              name="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="e.g., Growth Portfolio, Retirement 401k"
+              placeholder="e.g., My 401k, Emergency Fund, Crypto Portfolio"
               required
+              data-testid="portfolio-name-input"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="account_type">Account Type *</Label>
+            <Select
+              value={formData.account_type}
+              onValueChange={(value) => handleInputChange('account_type', value)}
+            >
+              <SelectTrigger data-testid="account-type-select">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(ACCOUNT_TYPES).map(([key, config]) => (
+                  <SelectItem key={key} value={key}>
+                    {config.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-gray-600">{selectedAccountConfig.description}</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="current_value">Current Value (Optional)</Label>
+            <Input
+              id="current_value"
+              name="current_value"
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.current_value}
+              onChange={(e) => handleInputChange('current_value', e.target.value)}
+              placeholder="0.00"
+              data-testid="portfolio-value-input"
+            />
+            <p className="text-xs text-gray-500">Enter the current value if you're tracking an existing portfolio</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
+              name="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of this portfolio's purpose..."
-              rows={3}
+              placeholder={`Brief description... (defaults to: ${selectedAccountConfig.description})`}
+              rows={2}
+              data-testid="portfolio-description-input"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="portfolio_type">Portfolio Type</Label>
-              <Select
-                value={formData.portfolio_type}
-                onValueChange={(value) => handleInputChange('portfolio_type', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="investment">Investment</SelectItem>
-                  <SelectItem value="retirement">Retirement</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                  <SelectItem value="emergency">Emergency Fund</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="risk_level">Risk Level</Label>
-              <Select
-                value={formData.risk_level}
-                onValueChange={(value) => handleInputChange('risk_level', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="conservative">Conservative</SelectItem>
-                  <SelectItem value="moderate">Moderate</SelectItem>
-                  <SelectItem value="aggressive">Aggressive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="rebalance_frequency">Rebalance Frequency</Label>
-              <Select
-                value={formData.rebalance_frequency}
-                onValueChange={(value) => handleInputChange('rebalance_frequency', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="semiannually">Semi-annually</SelectItem>
-                  <SelectItem value="annually">Annually</SelectItem>
-                  <SelectItem value="never">Never</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="rebalance_threshold">Rebalance Threshold (%)</Label>
-              <Input
-                id="rebalance_threshold"
-                type="number"
-                min="1"
-                max="20"
-                step="0.5"
-                value={formData.rebalance_threshold}
-                onChange={(e) => handleInputChange('rebalance_threshold', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="benchmark_symbol">Benchmark Symbol (Optional)</Label>
-            <Input
-              id="benchmark_symbol"
-              value={formData.benchmark_symbol}
-              onChange={(e) => handleInputChange('benchmark_symbol', e.target.value)}
-              placeholder="e.g., SPY, VTI"
-              maxLength={10}
-            />
+          {/* Auto-configured settings summary */}
+          <div className="bg-gray-50 p-3 rounded-lg text-sm">
+            <h4 className="font-medium text-gray-900 mb-2">Auto-configured settings for {selectedAccountConfig.name}:</h4>
+            <ul className="space-y-1 text-gray-700">
+              <li>• Risk Level: <span className="font-medium capitalize">{selectedAccountConfig.risk_level}</span></li>
+              <li>• Tax Status: <span className="font-medium">{selectedAccountConfig.tax_advantaged ? 'Tax-advantaged' : 'Taxable'}</span></li>
+              <li>• Rebalancing: <span className="font-medium capitalize">{selectedAccountConfig.rebalance_frequency}</span> 
+                {selectedAccountConfig.rebalance_frequency !== 'never' && 
+                  ` (${selectedAccountConfig.rebalance_threshold}% threshold)`
+                }
+              </li>
+            </ul>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} data-testid="cancel-portfolio-btn">
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading || !formData.name.trim()}>
+            <Button type="submit" disabled={isLoading || !formData.name.trim()} data-testid="create-portfolio-submit-btn">
               {isLoading ? 'Creating...' : 'Create Portfolio'}
             </Button>
           </DialogFooter>
