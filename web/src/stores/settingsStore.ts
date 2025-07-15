@@ -31,7 +31,7 @@ const defaultSettings: AppSettings = {
 
 export const useSettingsStore = create<SettingsState & SettingsActions>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       // State
       settings: defaultSettings,
       isLoading: false,

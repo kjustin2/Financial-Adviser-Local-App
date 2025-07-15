@@ -1,6 +1,7 @@
 import React from 'react'
 import { Card, CardHeader, CardTitle, CardContent, Button } from '../common'
 import { formatSecurityType } from '../../utils/formatters'
+import { RiskTolerance } from '../../types'
 import type { UserProfile } from '../../types'
 
 interface ProfileSummaryProps {
@@ -65,8 +66,8 @@ export const ProfileSummary: React.FC<ProfileSummaryProps> = ({ profile, onEdit 
               <div>
                 <span className="text-sm text-gray-600">Risk Tolerance:</span>
                 <span className={`ml-2 text-sm font-medium ${
-                  profile.riskTolerance === 'CONSERVATIVE' ? 'text-blue-600' :
-                  profile.riskTolerance === 'MODERATE' ? 'text-yellow-600' :
+                  profile.riskTolerance === RiskTolerance.CONSERVATIVE ? 'text-blue-600' :
+                  profile.riskTolerance === RiskTolerance.MODERATE ? 'text-yellow-600' :
                   'text-red-600'
                 }`}>
                   {formatRiskTolerance(profile.riskTolerance)}
@@ -120,13 +121,13 @@ export const ProfileSummary: React.FC<ProfileSummaryProps> = ({ profile, onEdit 
           <div className="text-sm text-gray-600 space-y-1">
             <p>
               Based on your {formatRiskTolerance(profile.riskTolerance)} risk tolerance and {formatTimeHorizon(profile.timeHorizon)} time horizon, 
-              you're well-positioned for {profile.riskTolerance === 'AGGRESSIVE' ? 'growth-focused' : 
-              profile.riskTolerance === 'CONSERVATIVE' ? 'stability-focused' : 'balanced'} investing.
+              you're well-positioned for {profile.riskTolerance === RiskTolerance.AGGRESSIVE ? 'growth-focused' : 
+              profile.riskTolerance === RiskTolerance.CONSERVATIVE ? 'stability-focused' : 'balanced'} investing.
             </p>
             {profile.age < 30 && (
               <p>Your young age gives you a significant advantage in long-term wealth building through compound growth.</p>
             )}
-            {profile.age > 50 && profile.riskTolerance === 'AGGRESSIVE' && (
+            {profile.age > 50 && profile.riskTolerance === RiskTolerance.AGGRESSIVE && (
               <p>Consider gradually shifting to a more conservative approach as you near retirement.</p>
             )}
           </div>

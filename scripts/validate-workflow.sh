@@ -61,75 +61,124 @@ validate_workflow_structure() {
     return 0
 }
 
-# Check cache configuration
-echo "🗄️ Validating cache configuration..."
+# Function to validate cache configuration
+validate_cache_configuration() {
+    echo "🗄️ Validating cache configuration..."
+    
+    local cache_checks=(
+        "cache: 'npm':npm cache not configured"
+        "cache-dependency-path: './web/package-lock.json':Cache dependency path not pointing to package-lock.json"
+    )
+    
+    for check_info in "${cache_checks[@]}"; do
+        local pattern="${check_info%%:*}"
+        local error_msg="${check_info#*:}"
+        
+        if ! grep -q "$pattern" "$WORKFLOW_FILE"; then
+            echo "❌ ERROR: $error_msg"
+            return 1
+        fi
+    done
+    
+    echo "✅ Cache configuration is valid"
+    return 0
+}
 
-if ! grep -q "cache: 'npm'" .github/workflows/deploy.yml; then
-    echo "❌ ERROR: npm cache not configured"
-    exit 1
-fi
+# Function to validate error handling
+validate_error_handling() {
+    echo "🛡️ Validating error handling..."
+    
+    local error_handling_checks=(
+        "npm ci ||:No fallback mechanism for npm ci"
+        "npm install as fallback:Fallback error message not found"
+    )
+    
+    for check_info in "${error_handling_checks[@]}"; do
+        local pattern="${check_info%%:*}"
+        local error_msg="${check_info#*:}"
+        
+        if ! grep -q "$pattern" "$WORKFLOW_FILE"; then
+            echo "❌ ERROR: $error_msg"
+            return 1
+        fi
+    done
+    
+    echo "✅ Error handling is configured"
+    return 0
+}
 
-if ! grep -q "cache-dependency-path: './web/package-lock.json'" .github/workflows/deploy.yml; then
-    echo "❌ ERROR: Cache dependency path not pointing to package-lock.json"
-    exit 1
-fi
+# Function to validate workflow dispatch
+validate_workflow_dispatch() {
+    echo "🚀 Validating manual trigger..."
+    
+    if ! grep -q "workflow_dispatch:" "$WORKFLOW_FILE"; then
+        echo "❌ ERROR: Manual workflow dispatch not configured"
+        return 1
+    fi
+    
+    echo "✅ Manual trigger is configured"
+    return 0
+}
 
-echo "✅ Cache configuration is valid"
+# Function to validate package.json scripts
+validate_package_scripts() {
+    echo "📦 Validating package.json scripts..."
+    
+    local original_dir="$PWD"
+    cd web || {
+        echo "❌ ERROR: Cannot access web directory"
+        return 1
+    }
+    
+    local required_scripts=("build" "test" "lint")
+    
+    for script in "${required_scripts[@]}"; do
+        if ! npm run --silent 2>/dev/null | grep -q "$script"; then
+            echo "❌ ERROR: $script script not found in package.json"
+            cd "$original_dir"
+            return 1
+        fi
+    done
+    
+    cd "$original_dir"
+    echo "✅ All required npm scripts are present"
+    return 0
+}
 
-# Check error handling
-echo "🛡️ Validating error handling..."
+# Function to display success message
+display_success_message() {
+    echo ""
+    echo "🎉 Workflow validation completed successfully!"
+    echo "✅ GitHub Actions deployment should now work without caching errors"
+    echo ""
+    echo "Next steps:"
+    echo "1. Commit the changes to your repository"
+    echo "2. Push to trigger the workflow"
+    echo "3. Monitor the Actions tab for successful deployment"
+}
 
-if ! grep -q "npm ci ||" .github/workflows/deploy.yml; then
-    echo "❌ ERROR: No fallback mechanism for npm ci"
-    exit 1
-fi
+# Main function to orchestrate all validations
+main() {
+    echo "🔍 Validating GitHub Actions workflow configuration..."
+    
+    local validation_functions=(
+        "check_required_files"
+        "validate_workflow_structure"
+        "validate_cache_configuration"
+        "validate_error_handling"
+        "validate_workflow_dispatch"
+        "validate_package_scripts"
+    )
+    
+    for func in "${validation_functions[@]}"; do
+        if ! "$func"; then
+            echo "❌ Validation failed at: $func"
+            exit 1
+        fi
+    done
+    
+    display_success_message
+}
 
-if ! grep -q "npm install as fallback" .github/workflows/deploy.yml; then
-    echo "❌ ERROR: Fallback error message not found"
-    exit 1
-fi
-
-echo "✅ Error handling is configured"
-
-# Check workflow dispatch
-echo "🚀 Validating manual trigger..."
-
-if ! grep -q "workflow_dispatch:" .github/workflows/deploy.yml; then
-    echo "❌ ERROR: Manual workflow dispatch not configured"
-    exit 1
-fi
-
-echo "✅ Manual trigger is configured"
-
-# Validate package.json scripts
-echo "📦 Validating package.json scripts..."
-
-cd web
-
-if ! npm run --silent 2>/dev/null | grep -q "build"; then
-    echo "❌ ERROR: build script not found in package.json"
-    exit 1
-fi
-
-if ! npm run --silent 2>/dev/null | grep -q "test"; then
-    echo "❌ ERROR: test script not found in package.json"
-    exit 1
-fi
-
-if ! npm run --silent 2>/dev/null | grep -q "lint"; then
-    echo "❌ ERROR: lint script not found in package.json"
-    exit 1
-fi
-
-cd ..
-
-echo "✅ All required npm scripts are present"
-
-echo ""
-echo "🎉 Workflow validation completed successfully!"
-echo "✅ GitHub Actions deployment should now work without caching errors"
-echo ""
-echo "Next steps:"
-echo "1. Commit the changes to your repository"
-echo "2. Push to trigger the workflow"
-echo "3. Monitor the Actions tab for successful deployment"
+# Execute main function
+main "$@"

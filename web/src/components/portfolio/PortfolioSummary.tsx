@@ -1,6 +1,8 @@
 import React from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../common'
 import { formatCurrency, formatGainLoss, formatGainLossPercentage } from '../../utils/formatters'
+import { PortfolioAnalytics } from '../../services/analytics'
+import { SecurityType } from '../../types'
 import type { PortfolioSummary, PortfolioAnalysis } from '../../types'
 
 interface PortfolioSummaryProps {
@@ -89,10 +91,10 @@ export const PortfolioSummaryComponent: React.FC<PortfolioSummaryProps> = ({ sum
                       className="w-3 h-3 rounded-full"
                       style={{
                         backgroundColor: 
-                          allocation.securityType === 'STOCK' ? '#3B82F6' :
-                          allocation.securityType === 'BOND' ? '#10B981' :
-                          allocation.securityType === 'ETF' ? '#F59E0B' :
-                          allocation.securityType === 'CASH' ? '#6B7280' :
+                          allocation.securityType === SecurityType.STOCK ? '#3B82F6' :
+                          allocation.securityType === SecurityType.BOND ? '#10B981' :
+                          allocation.securityType === SecurityType.ETF ? '#F59E0B' :
+                          allocation.securityType === SecurityType.CASH ? '#6B7280' :
                           '#8B5CF6'
                       }}
                     />

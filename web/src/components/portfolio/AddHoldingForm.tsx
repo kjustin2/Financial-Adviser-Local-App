@@ -189,7 +189,7 @@ export const AddHoldingForm: React.FC<AddHoldingFormProps> = ({
           <Input
             label="Purchase Date *"
             type="date"
-            value={formData.purchaseDate}
+            value={formData.purchaseDate instanceof Date ? formData.purchaseDate.toISOString().split('T')[0] : formData.purchaseDate}
             onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
             error={errors.purchaseDate}
             required

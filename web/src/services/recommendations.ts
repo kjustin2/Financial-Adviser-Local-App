@@ -7,11 +7,11 @@ import type {
   Holding,
   UserProfile,
   Goal,
-  Recommendation,
-  CreateRecommendationData,
+  CreateRecommendationData
+} from '../types'
+import {
   RecommendationType,
   RecommendationPriority,
-  RiskTolerance,
   SecurityType,
   GoalCategory
 } from '../types'
@@ -99,8 +99,8 @@ export class RecommendationEngine {
     const targetAllocation = PortfolioAnalytics.suggestTargetAllocation(context.userProfile)
     
     // Calculate current equity allocation (stocks + ETFs)
-    const currentStocks = allocations.find(a => a.securityType === 'STOCK')?.percentage || 0
-    const currentETFs = allocations.find(a => a.securityType === 'ETF')?.percentage || 0
+    const currentStocks = allocations.find(a => a.securityType === SecurityType.STOCK)?.percentage || 0
+    const currentETFs = allocations.find(a => a.securityType === SecurityType.ETF)?.percentage || 0
     const currentEquity = currentStocks + currentETFs
     const targetEquity = targetAllocation.stocks
     
@@ -143,7 +143,7 @@ export class RecommendationEngine {
     }
     
     // Check for missing asset classes
-    const currentBonds = allocations.find(a => a.securityType === 'BOND')?.percentage || 0
+    const currentBonds = allocations.find(a => a.securityType === SecurityType.BOND)?.percentage || 0
     
     if (currentBonds < RECOMMENDATION_THRESHOLDS.MIN_BOND_ALLOCATION && context.userProfile.age > RECOMMENDATION_THRESHOLDS.MIN_BOND_AGE) {
       recommendations.push({

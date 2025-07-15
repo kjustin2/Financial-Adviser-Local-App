@@ -53,11 +53,11 @@ export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement>
 
 export const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, children, level = 3, ...props }, ref) => {
-    const Component = `h${level}` as keyof JSX.IntrinsicElements
+    const Component = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
     return (
       <Component
-        ref={ref}
+        ref={ref as any}
         className={cn(
           'text-lg font-semibold leading-none tracking-tight',
           {

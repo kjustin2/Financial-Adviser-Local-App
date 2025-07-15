@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, CardContent, Button } from '../common'
-import { formatCurrency, formatDate, formatRelativeDate } from '../../utils/formatters'
+import { formatCurrency, formatDate } from '../../utils/formatters'
 import type { Goal, GoalCalculations } from '../../types'
 
 interface GoalCardProps {

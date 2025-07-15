@@ -90,11 +90,11 @@ export const AddGoalForm: React.FC<AddGoalFormProps> = ({
       newErrors.targetAmount = 'Target amount must be greater than 0'
     }
 
-    if (formData.currentAmount < 0) {
+    if ((formData.currentAmount ?? 0) < 0) {
       newErrors.currentAmount = 'Current amount cannot be negative'
     }
 
-    if (formData.currentAmount > formData.targetAmount) {
+    if ((formData.currentAmount ?? 0) > formData.targetAmount) {
       newErrors.currentAmount = 'Current amount cannot exceed target amount'
     }
 
@@ -173,7 +173,7 @@ export const AddGoalForm: React.FC<AddGoalFormProps> = ({
     const targetDate = new Date(formData.targetDate)
     const today = new Date()
     const monthsRemaining = Math.max(1, (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30.44))
-    const remainingAmount = Math.max(0, formData.targetAmount - formData.currentAmount)
+    const remainingAmount = Math.max(0, formData.targetAmount - (formData.currentAmount ?? 0))
     return remainingAmount / monthsRemaining
   }
 
@@ -232,7 +232,7 @@ export const AddGoalForm: React.FC<AddGoalFormProps> = ({
           <Input
             label="Target Date *"
             type="date"
-            value={formData.targetDate}
+            value={formData.targetDate instanceof Date ? formData.targetDate.toISOString().split('T')[0] : formData.targetDate}
             onChange={(e) => handleInputChange('targetDate', e.target.value)}
             error={errors.targetDate}
             required
@@ -255,7 +255,7 @@ export const AddGoalForm: React.FC<AddGoalFormProps> = ({
               <div>
                 <span className="text-gray-600">Remaining Amount:</span>
                 <div className="font-medium">
-                  ${Math.max(0, formData.targetAmount - formData.currentAmount).toLocaleString('en-US', {
+                  ${Math.max(0, formData.targetAmount - (formData.currentAmount ?? 0)).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}
@@ -265,7 +265,7 @@ export const AddGoalForm: React.FC<AddGoalFormProps> = ({
                 <span className="text-gray-600">Current Progress:</span>
                 <div className="font-medium">
                   {formData.targetAmount > 0 ? 
-                    ((formData.currentAmount / formData.targetAmount) * 100).toFixed(1) : 0}%
+                    (((formData.currentAmount ?? 0) / formData.targetAmount) * 100).toFixed(1) : 0}%
                 </div>
               </div>
               <div>

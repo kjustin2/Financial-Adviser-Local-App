@@ -5,10 +5,9 @@ import type {
   AllocationBreakdown, 
   PortfolioAnalysis,
   RiskMetrics,
-  HoldingCalculations,
-  SecurityType,
-  RiskTolerance 
+  HoldingCalculations
 } from '../types'
+import { SecurityType, RiskTolerance, TimeHorizon } from '../types'
 
 export interface PerformanceMetrics {
   totalValue: number
@@ -200,7 +199,7 @@ export class PortfolioAnalytics {
     }
   }
 
-  static calculateRiskMetrics(holdings: Holding[], userProfile?: UserProfile): RiskMetrics {
+  static calculateRiskMetrics(holdings: Holding[], _userProfile?: UserProfile): RiskMetrics {
     if (!holdings.length) {
       return {
         diversificationScore: 0,
@@ -471,9 +470,9 @@ export class PortfolioAnalytics {
     }
 
     // Adjust for time horizon
-    if (timeHorizon === 'SHORT_TERM') {
+    if (timeHorizon === TimeHorizon.SHORT_TERM) {
       baseStockPercent = Math.max(baseStockPercent - 15, 20)
-    } else if (timeHorizon === 'LONG_TERM') {
+    } else if (timeHorizon === TimeHorizon.LONG_TERM) {
       baseStockPercent = Math.min(baseStockPercent + 10, 90)
     }
 
