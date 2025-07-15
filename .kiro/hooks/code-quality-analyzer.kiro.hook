@@ -6,18 +6,7 @@
   "when": {
     "type": "fileEdited",
     "patterns": [
-      "backend/**/*.py",
-      "frontend/src/**/*.ts",
-      "frontend/src/**/*.tsx",
-      "frontend/src/**/*.js",
-      "frontend/src/**/*.jsx",
-      "scripts/*.sh",
-      "scripts/*.py",
-      "*.py",
-      "*.ts",
-      "*.tsx",
-      "*.js",
-      "*.jsx"
+      "*.tsx"
     ]
   },
   "then": {

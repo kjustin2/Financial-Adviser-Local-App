@@ -4,7 +4,7 @@
   "description": "Listens to source code changes in Python and TypeScript files and automatically updates documentation in README.md and docs folder",
   "version": "1",
   "when": {
-    "type": "fileEdited",
+    "type": "userTriggered",
     "patterns": [
       "backend/**/*.py",
       "frontend/**/*.ts",
