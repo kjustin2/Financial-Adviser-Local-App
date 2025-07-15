@@ -1,83 +1,32 @@
-# Financial Adviser Local App - .gitignore
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Poetry
-poetry.lock
-
-# Virtual environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Python IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# pytest
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# Node.js & NPM
+# Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
 
-# Frontend build
-frontend/dist/
-frontend/build/
-frontend/.next/
-frontend/out/
+# Build outputs
+dist/
+build/
+.vite/
 
-# TypeScript
-*.tsbuildinfo
-frontend/tsconfig.tsbuildinfo
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage/
+.nyc_output
+test-results/
+playwright-report/
+test-results/
 
 # Logs
-logs
 *.log
+logs/
 
 # Runtime data
 pids
@@ -85,62 +34,18 @@ pids
 *.seed
 *.pid.lock
 
-# Optional npm cache directory
-.npm
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
 
-# Optional eslint cache
-.eslintcache
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# dotenv environment variables file
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Database files
-database/
-*.db
-*.sqlite
-*.sqlite3
-
-# Application data
-data/
-logs/
-temp/
-tmp/
-
-# Security and API keys
-*.pem
-*.key
-*.cert
-config.encrypted
-app.key
-
-# OS files
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -149,55 +54,16 @@ app.key
 ehthumbs.db
 Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Testing
-coverage/
-.coverage
-.nyc_output
-test-results/
-playwright-report/
-test-results.xml
-
-# Playwright auth state (contains sensitive session data)
-frontend/e2e/.auth/
-
-# Build artifacts
-build/
-dist/
-*.exe
-*.app
-*.dmg
-*.pkg
-*.deb
-*.rpm
-
-# Documentation build
-docs/_build/
-site/
-
 # Temporary files
 *.tmp
 *.temp
-*.bak
-*.backup
 
-# Financial data (never commit real financial data)
-*.csv
-*.xlsx
-*.xls
-financial_data/
-client_data/
-portfolio_data/
+# Cache directories
+.cache/
+.parcel-cache/
 
-# Local development
-.local/
-local/
+# IndexedDB data (if needed for development)
+.financial_advisor/
 
-# Error Images
-/error_images/
+# Backup files
+backups/

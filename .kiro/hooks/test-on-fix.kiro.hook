@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Test Coverage for Fixes",
+  "description": "Monitors source code changes and reminds to add or update tests when making bug fixes or modifications",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.py"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code has been modified. Please review the changes and ensure that appropriate tests are in place. If this is a bug fix, verify that:\n1. A test case exists that would have caught the original bug\n2. The test suite covers the modified functionality\n3. Any edge cases are properly tested\n4. Integration tests are updated if needed\n\nCheck the tests/ directory and suggest any missing test coverage for the changes made."
+  }
+}
