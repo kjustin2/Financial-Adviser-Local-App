@@ -4,7 +4,7 @@
   "description": "Monitors source code files for changes and provides automated code quality analysis including code smells detection, design pattern suggestions, and best practices recommendations to improve readability, maintainability, and performance.",
   "version": "1",
   "when": {
-    "type": "fileEdited",
+    "type": "userTriggered",
     "patterns": [
       "*.tsx"
     ]

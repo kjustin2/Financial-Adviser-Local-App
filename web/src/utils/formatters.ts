@@ -1,61 +1,42 @@
-import { format } from 'date-fns'
+// Formatting utilities for MVP
 
-export const formatCurrency = (amount: number, currency = 'USD'): string => {
+export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.round(amount))
 }
 
-export const formatPercentage = (value: number, decimals = 2): string => {
+export const formatCompactCurrency = (amount: number): string => {
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`
+  }
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(1)}K`
+  }
+  return formatCurrency(amount)
+}
+
+export const formatPercentage = (value: number, decimals: number = 1): string => {
   return `${value.toFixed(decimals)}%`
 }
 
-export const formatNumber = (value: number, decimals = 0): string => {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(value)
+export const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat('en-US').format(value)
 }
 
-export const formatCompactNumber = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    compactDisplay: 'short',
-  }).format(value)
-}
-
-export const formatDate = (date: Date | string, dateFormat = 'MM/dd/yyyy'): string => {
+export const formatDate = (date: Date | string): string => {
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  return format(dateObj, dateFormat)
+  return dateObj.toLocaleDateString('en-US')
 }
 
-export const formatRelativeDate = (date: Date | string): string => {
+export const formatDateShort = (date: Date | string): string => {
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  const now = new Date()
-  const diffInDays = Math.ceil((dateObj.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  
-  if (diffInDays === 0) return 'Today'
-  if (diffInDays === 1) return 'Tomorrow'
-  if (diffInDays === -1) return 'Yesterday'
-  if (diffInDays > 0) return `In ${diffInDays} days`
-  return `${Math.abs(diffInDays)} days ago`
-}
-
-export const formatSecurityType = (type: string): string => {
-  return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-}
-
-export const formatGainLoss = (value: number): { text: string; isPositive: boolean } => {
-  const isPositive = value >= 0
-  const text = isPositive ? `+${formatCurrency(value)}` : formatCurrency(value)
-  return { text, isPositive }
-}
-
-export const formatGainLossPercentage = (value: number): { text: string; isPositive: boolean } => {
-  const isPositive = value >= 0
-  const text = isPositive ? `+${formatPercentage(value)}` : formatPercentage(value)
-  return { text, isPositive }
+  return dateObj.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
 }
