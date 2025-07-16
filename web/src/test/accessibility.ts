@@ -21,7 +21,7 @@ export const testKeyboardNavigation = async (renderResult: RenderResult) => {
   
   // Test that all focusable elements can receive focus
   focusableElements.forEach((element) => {
-    ;(element as HTMLElement).focus()
+    (element as HTMLElement).focus()
     expect(document.activeElement).toBe(element)
   })
 }
