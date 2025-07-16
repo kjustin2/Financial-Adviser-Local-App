@@ -1,7 +1,38 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Card, CardContent, Button } from '../common'
 import { formatDate } from '../../utils/formatters'
-import type { Recommendation } from '../../types'
+import type { Recommendation } from '../../types/recommendations'
+import { RecommendationType, RecommendationPriority } from '../../types/enums'
+
+// Move helper functions outside component to prevent recreation on each render
+const getPriorityColor = (priority: RecommendationPriority): string => {
+  switch (priority) {
+    case RecommendationPriority.HIGH: return 'bg-red-100 text-red-800 border-red-200'
+    case RecommendationPriority.MEDIUM: return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+    case RecommendationPriority.LOW: return 'bg-green-100 text-green-800 border-green-200'
+    default: return 'bg-gray-100 text-gray-800 border-gray-200'
+  }
+}
+
+const getTypeColor = (type: RecommendationType): string => {
+  switch (type) {
+    case RecommendationType.ALLOCATION: return 'bg-blue-100 text-blue-800'
+    case RecommendationType.REBALANCING: return 'bg-purple-100 text-purple-800'
+    case RecommendationType.RISK_MANAGEMENT: return 'bg-orange-100 text-orange-800'
+    case RecommendationType.TAX_EFFICIENCY: return 'bg-indigo-100 text-indigo-800'
+    case RecommendationType.GOAL_ACHIEVEMENT: return 'bg-green-100 text-green-800'
+    case RecommendationType.COST_REDUCTION: return 'bg-teal-100 text-teal-800'
+    default: return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const formatType = (type: RecommendationType): string => {
+  return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+const formatPriority = (priority: RecommendationPriority): string => {
+  return priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase()
+}
 
 interface RecommendationCardProps {
   recommendation: Recommendation
@@ -18,48 +49,53 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200'
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'low': return 'bg-green-100 text-green-800 border-green-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  }
+  // Memoize computed values to prevent unnecessary recalculations
+  const priorityColorClass = useMemo(() => getPriorityColor(recommendation.priority), [recommendation.priority])
+  const typeColorClass = useMemo(() => getTypeColor(recommendation.type), [recommendation.type])
+  const formattedType = useMemo(() => formatType(recommendation.type), [recommendation.type])
+  const formattedPriority = useMemo(() => formatPriority(recommendation.priority), [recommendation.priority])
+  const formattedCreatedDate = useMemo(() => formatDate(recommendation.createdAt), [recommendation.createdAt])
+  const formattedImplementedDate = useMemo(() => 
+    recommendation.implementedAt ? formatDate(recommendation.implementedAt) : null, 
+    [recommendation.implementedAt]
+  )
 
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'allocation': return 'bg-blue-100 text-blue-800'
-      case 'rebalancing': return 'bg-purple-100 text-purple-800'
-      case 'risk_management': return 'bg-orange-100 text-orange-800'
-      case 'tax_efficiency': return 'bg-indigo-100 text-indigo-800'
-      case 'goal_achievement': return 'bg-green-100 text-green-800'
-      case 'cost_reduction': return 'bg-teal-100 text-teal-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
+  // Memoize event handlers to prevent unnecessary re-renders of child components
+  const handleToggleExpanded = useCallback(() => {
+    setIsExpanded(prev => !prev)
+  }, [])
 
-  const formatType = (type: string) => {
-    return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-  }
+  const handleMarkImplemented = useCallback(() => {
+    onMarkImplemented?.(recommendation.id)
+  }, [onMarkImplemented, recommendation.id])
 
-  const formatPriority = (priority: string) => {
-    return priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase()
-  }
+  const handleDelete = useCallback(() => {
+    onDelete?.(recommendation.id)
+  }, [onDelete, recommendation.id])
+
+  // Memoize the card className to prevent unnecessary recalculations
+  const cardClassName = useMemo(() => 
+    `transition-all duration-200 ${
+      recommendation.implemented ? 'opacity-75 bg-gray-50' : 'hover:shadow-md'
+    }`,
+    [recommendation.implemented]
+  )
+
+  // Memoize the title className
+  const titleClassName = useMemo(() => 
+    `font-semibold text-lg ${
+      recommendation.implemented ? 'text-gray-600 line-through' : 'text-gray-900'
+    }`,
+    [recommendation.implemented]
+  )
 
   return (
-    <Card 
-      className={`transition-all duration-200 ${
-        recommendation.implemented ? 'opacity-75 bg-gray-50' : 'hover:shadow-md'
-      }`}
-    >
+    <Card className={cardClassName}>
       <CardContent>
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
-              <h3 className={`font-semibold text-lg ${
-                recommendation.implemented ? 'text-gray-600 line-through' : 'text-gray-900'
-              }`}>
+              <h3 className={titleClassName}>
                 {recommendation.title}
               </h3>
               {recommendation.implemented && (
@@ -70,11 +106,11 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
             </div>
             
             <div className="flex items-center space-x-2 mb-3">
-              <span className={`px-2 py-1 text-xs font-medium rounded border ${getPriorityColor(recommendation.priority)}`}>
-                {formatPriority(recommendation.priority)} Priority
+              <span className={`px-2 py-1 text-xs font-medium rounded border ${priorityColorClass}`}>
+                {formattedPriority} Priority
               </span>
-              <span className={`px-2 py-1 text-xs font-medium rounded ${getTypeColor(recommendation.type)}`}>
-                {formatType(recommendation.type)}
+              <span className={`px-2 py-1 text-xs font-medium rounded ${typeColorClass}`}>
+                {formattedType}
               </span>
             </div>
           </div>
@@ -85,7 +121,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onMarkImplemented(recommendation.id)}
+                  onClick={handleMarkImplemented}
                 >
                   Mark Done
                 </Button>
@@ -94,7 +130,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => onDelete(recommendation.id)}
+                  onClick={handleDelete}
                 >
                   Delete
                 </Button>
@@ -109,40 +145,47 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
         {/* Reasoning - Expandable */}
         <div className="mb-4">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={handleToggleExpanded}
             className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            aria-expanded={isExpanded}
+            aria-controls="reasoning-content"
           >
-            <span className="mr-1">
+            <span className="mr-1" aria-hidden="true">
               {isExpanded ? '▼' : '▶'}
             </span>
             Why this matters
           </button>
           
           {isExpanded && (
-            <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-700">
+            <div 
+              id="reasoning-content"
+              className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-700"
+            >
               {recommendation.reasoning}
             </div>
           )}
         </div>
 
         {/* Action Items */}
-        <div className="mb-4">
-          <h4 className="font-medium text-gray-900 mb-2">Action Items:</h4>
-          <ul className="space-y-1">
-            {recommendation.actionItems.map((item, index) => (
-              <li key={index} className="flex items-start text-sm text-gray-700">
-                <span className="inline-block w-2 h-2 bg-primary-600 rounded-full mt-2 mr-3 flex-shrink-0" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {recommendation.actionItems.length > 0 && (
+          <div className="mb-4">
+            <h4 className="font-medium text-gray-900 mb-2">Action Items:</h4>
+            <ul className="space-y-1" role="list">
+              {recommendation.actionItems.map((item) => (
+                <li key={item.id} className="flex items-start text-sm text-gray-700">
+                  <span className="inline-block w-2 h-2 bg-primary-600 rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                  <span>{item.description}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Metadata */}
         <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
-          <span>Created: {formatDate(recommendation.createdAt)}</span>
-          {recommendation.implementedAt && (
-            <span>Completed: {formatDate(recommendation.implementedAt)}</span>
+          <span>Created: {formattedCreatedDate}</span>
+          {formattedImplementedDate && (
+            <span>Completed: {formattedImplementedDate}</span>
           )}
         </div>
       </CardContent>

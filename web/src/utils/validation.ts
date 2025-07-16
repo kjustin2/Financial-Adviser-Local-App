@@ -1,106 +1,188 @@
 import { z } from 'zod'
-import {
-  ExperienceLevel,
-  RiskTolerance,
-  TimeHorizon,
-  MajorPurchase,
-  SecurityType,
-  GoalCategory,
-  GoalPriority,
-  RecommendationType,
-  RecommendationPriority
-} from '../types/enums'
 
-export const UserProfileSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
-  age: z.number().int().min(18, 'Must be at least 18').max(120, 'Invalid age'),
-  incomeRange: z.string().min(1, 'Income range is required'),
-  experienceLevel: z.nativeEnum(ExperienceLevel),
-  riskTolerance: z.nativeEnum(RiskTolerance),
-  financialGoals: z.array(z.string()).min(1, 'At least one financial goal required'),
-  timeHorizon: z.nativeEnum(TimeHorizon),
-  majorPurchases: z.array(z.nativeEnum(MajorPurchase)),
-  createdAt: z.date(),
-  updatedAt: z.date()
+// Basic Info Step Validation
+export const basicInfoSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes'),
+  
+  age: z.number()
+    .min(18, 'Must be at least 18 years old')
+    .max(120, 'Please enter a valid age')
+    .int('Age must be a whole number'),
+  
+  incomeRange: z.string()
+    .min(1, 'Please select your income range')
 })
 
-export const CreateUserProfileSchema = UserProfileSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
+// Experience & Risk Step Validation
+export const experienceRiskSchema = z.object({
+  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced'], {
+    errorMap: () => ({ message: 'Please select your investment experience level' })
+  }),
+  
+  riskTolerance: z.enum(['conservative', 'moderate', 'aggressive'], {
+    errorMap: () => ({ message: 'Please select your risk tolerance' })
+  }),
+  
+  investmentKnowledge: z.array(z.string()).optional()
 })
 
-export const HoldingSchema = z.object({
-  id: z.string().uuid(),
-  symbol: z.string().min(1, 'Symbol is required').max(20, 'Symbol too long'),
-  securityName: z.string().max(255, 'Security name too long').optional(),
-  securityType: z.nativeEnum(SecurityType),
-  quantity: z.number().positive('Quantity must be positive'),
-  purchasePrice: z.number().positive('Purchase price must be positive'),
-  purchaseDate: z.date(),
-  currentPrice: z.number().positive('Current price must be positive').optional(),
-  lastUpdated: z.date()
+// Goals & Timeline Step Validation
+export const goalsTimelineSchema = z.object({
+  primaryGoals: z.array(z.string())
+    .min(1, 'Please select at least one financial goal')
+    .max(8, 'Please select no more than 8 goals'),
+  
+  timeHorizon: z.enum(['short_term', 'medium_term', 'long_term'], {
+    errorMap: () => ({ message: 'Please select your investment time horizon' })
+  }),
+  
+  targetRetirementAge: z.number()
+    .min(50, 'Retirement age must be at least 50')
+    .max(80, 'Retirement age must be 80 or less')
+    .int('Retirement age must be a whole number')
+    .optional(),
+  
+  specificGoalAmounts: z.record(z.string(), z.number().min(0, 'Goal amounts must be positive')).optional()
 })
 
-export const CreateHoldingSchema = HoldingSchema.omit({
-  id: true,
-  lastUpdated: true
+// Current Situation Step Validation
+export const currentSituationSchema = z.object({
+  existingInvestments: z.number()
+    .min(0, 'Investment amount cannot be negative')
+    .max(100000000, 'Please enter a reasonable investment amount'),
+  
+  monthlySavings: z.number()
+    .min(0, 'Monthly savings cannot be negative')
+    .max(1000000, 'Please enter a reasonable monthly savings amount'),
+  
+  emergencyFund: z.number()
+    .min(0, 'Emergency fund amount cannot be negative')
+    .max(10000000, 'Please enter a reasonable emergency fund amount')
+    .optional(),
+  
+  currentDebt: z.number()
+    .min(0, 'Debt amount cannot be negative')
+    .max(10000000, 'Please enter a reasonable debt amount')
+    .optional()
 })
 
-export const GoalSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1, 'Goal name is required').max(255, 'Goal name too long'),
-  category: z.nativeEnum(GoalCategory),
-  targetAmount: z.number().positive('Target amount must be positive'),
-  targetDate: z.date().refine(date => date > new Date(), 'Target date must be in the future'),
-  currentAmount: z.number().min(0, 'Current amount cannot be negative').default(0),
-  priority: z.nativeEnum(GoalPriority),
-  createdAt: z.date(),
-  updatedAt: z.date()
+// Complete Profile Validation (all steps combined)
+export const completeProfileSchema = z.object({
+  ...basicInfoSchema.shape,
+  ...experienceRiskSchema.shape,
+  ...goalsTimelineSchema.shape,
+  ...currentSituationSchema.shape
 })
 
-export const CreateGoalSchema = GoalSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-})
+// Validation helper functions
+export const validateStep = (step: number, data: any) => {
+  try {
+    switch (step) {
+      case 1:
+        basicInfoSchema.parse(data)
+        return { isValid: true, errors: {} }
+      case 2:
+        experienceRiskSchema.parse(data)
+        return { isValid: true, errors: {} }
+      case 3:
+        goalsTimelineSchema.parse(data)
+        return { isValid: true, errors: {} }
+      case 4:
+        currentSituationSchema.parse(data)
+        return { isValid: true, errors: {} }
+      default:
+        return { isValid: false, errors: { general: 'Invalid step' } }
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errors: Record<string, string> = {}
+      error.errors.forEach((err) => {
+        const path = err.path.join('.')
+        errors[path] = err.message
+      })
+      return { isValid: false, errors }
+    }
+    return { isValid: false, errors: { general: 'Validation error' } }
+  }
+}
 
-export const RecommendationSchema = z.object({
-  id: z.string().uuid(),
-  type: z.nativeEnum(RecommendationType),
-  priority: z.nativeEnum(RecommendationPriority),
-  title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
-  description: z.string().min(1, 'Description is required'),
-  reasoning: z.string().min(1, 'Reasoning is required'),
-  actionItems: z.array(z.string()).min(1, 'At least one action item required'),
-  implemented: z.boolean().default(false),
-  createdAt: z.date(),
-  implementedAt: z.date().optional()
-})
+export const validateCompleteProfile = (data: any) => {
+  try {
+    completeProfileSchema.parse(data)
+    return { isValid: true, errors: {} }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errors: Record<string, string> = {}
+      error.errors.forEach((err) => {
+        const path = err.path.join('.')
+        errors[path] = err.message
+      })
+      return { isValid: false, errors }
+    }
+    return { isValid: false, errors: { general: 'Validation error' } }
+  }
+}
 
-export const CreateRecommendationSchema = RecommendationSchema.omit({
-  id: true,
-  implemented: true,
-  createdAt: true,
-  implementedAt: true
-})
+// Field-level validation helpers
+export const validateField = (fieldName: string, value: any, schema: z.ZodSchema) => {
+  try {
+    schema.parse({ [fieldName]: value })
+    return null // No error
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const fieldError = error.errors.find(err => err.path.includes(fieldName))
+      return fieldError?.message || 'Invalid value'
+    }
+    return 'Validation error'
+  }
+}
 
-export const AppSettingsSchema = z.object({
-  theme: z.enum(['light', 'dark', 'system']).default('system'),
-  currency: z.string().default('USD'),
-  dateFormat: z.string().default('MM/dd/yyyy'),
-  autoRefreshInterval: z.number().min(0).default(300000), // 5 minutes
-  privacyMode: z.boolean().default(false),
-  notifications: z.object({
-    goalReminders: z.boolean().default(true),
-    portfolioAlerts: z.boolean().default(true),
-    recommendationUpdates: z.boolean().default(true)
-  }).default({})
-})
+// Real-time validation for individual fields
+export const validateName = (name: string) => 
+  validateField('name', name, z.object({ name: basicInfoSchema.shape.name }))
 
-export type ValidatedUserProfile = z.infer<typeof UserProfileSchema>
-export type ValidatedHolding = z.infer<typeof HoldingSchema>
-export type ValidatedGoal = z.infer<typeof GoalSchema>
-export type ValidatedRecommendation = z.infer<typeof RecommendationSchema>
-export type ValidatedAppSettings = z.infer<typeof AppSettingsSchema>
+export const validateAge = (age: number) => 
+  validateField('age', age, z.object({ age: basicInfoSchema.shape.age }))
+
+export const validateIncomeRange = (incomeRange: string) => 
+  validateField('incomeRange', incomeRange, z.object({ incomeRange: basicInfoSchema.shape.incomeRange }))
+
+export const validateExperienceLevel = (experienceLevel: string) => 
+  validateField('experienceLevel', experienceLevel, z.object({ experienceLevel: experienceRiskSchema.shape.experienceLevel }))
+
+export const validateRiskTolerance = (riskTolerance: string) => 
+  validateField('riskTolerance', riskTolerance, z.object({ riskTolerance: experienceRiskSchema.shape.riskTolerance }))
+
+export const validatePrimaryGoals = (primaryGoals: string[]) => 
+  validateField('primaryGoals', primaryGoals, z.object({ primaryGoals: goalsTimelineSchema.shape.primaryGoals }))
+
+export const validateTimeHorizon = (timeHorizon: string) => 
+  validateField('timeHorizon', timeHorizon, z.object({ timeHorizon: goalsTimelineSchema.shape.timeHorizon }))
+
+export const validateExistingInvestments = (existingInvestments: number) => 
+  validateField('existingInvestments', existingInvestments, z.object({ existingInvestments: currentSituationSchema.shape.existingInvestments }))
+
+export const validateMonthlySavings = (monthlySavings: number) => 
+  validateField('monthlySavings', monthlySavings, z.object({ monthlySavings: currentSituationSchema.shape.monthlySavings }))
+
+// Data sanitization helpers
+export const sanitizeNumericInput = (value: string): number => {
+  const cleaned = value.replace(/[^0-9.-]/g, '')
+  const parsed = parseFloat(cleaned)
+  return isNaN(parsed) ? 0 : parsed
+}
+
+export const sanitizeStringInput = (value: string): string => {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
+export const sanitizeNameInput = (value: string): string => {
+  return value.trim()
+    .replace(/[^a-zA-Z\s'-]/g, '')
+    .replace(/\s+/g, ' ')
+    .substring(0, 100)
+}

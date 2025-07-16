@@ -1,27 +1,18 @@
-# Product Overview
+# Financial Advisor Web Application
 
-CLI Financial Advisor is a privacy-focused command-line personal financial advisor for individual investors. The tool helps users manage investment portfolios, track financial goals, and receive personalized investment recommendations while keeping all data secure and local.
+A privacy-focused, client-side personal financial advisor for individual investors. This React application helps users manage investment portfolios, track financial goals, and receive personalized investment recommendations while keeping all data local to the browser.
 
-## Core Value Proposition
+## Core Features
 
-- **Privacy-First**: All data stored locally with AES-256 encryption - no cloud dependencies
-- **Personal Finance Management**: Portfolio tracking, goal setting, and investment recommendations
-- **Rich CLI Experience**: Beautiful terminal output with tables, progress bars, and interactive prompts
-- **Educational**: Built-in investment education and financial literacy content
+- **Portfolio Management**: Track holdings, calculate performance, analyze asset allocation
+- **Goal Tracking**: Set and monitor financial objectives (retirement, home purchase, emergency funds)
+- **Smart Recommendations**: Personalized investment advice based on user profile and portfolio
+- **Privacy-First**: All data stored locally using IndexedDB - no cloud dependencies
+- **Risk Assessment**: Multi-factor risk scoring and tolerance evaluation
 
-## Target Users
+## Key Principles
 
-Individual investors who want to:
-- Take control of their financial future
-- Maintain privacy and data security
-- Access professional-grade financial analysis tools
-- Learn about investing through built-in educational content
-
-## Key Features
-
-- Personal financial profile setup (risk tolerance, goals, experience level)
-- Portfolio management and performance tracking
-- Smart investment recommendations based on user profile
-- Financial goal tracking and progress monitoring
-- Investment education and glossary
-- Encrypted backup and restore functionality
+- **Privacy by Design**: No external API calls, no user accounts, no data transmission
+- **Local-Only Storage**: IndexedDB for secure browser-native data persistence
+- **Modern Web Standards**: Progressive web app capabilities with responsive design
+- **Financial Accuracy**: Sophisticated calculations for portfolio performance and projections

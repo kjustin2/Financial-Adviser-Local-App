@@ -16,6 +16,36 @@ describe('PortfolioAnalytics', () => {
 
   const mockProfile = {
     id: '1',
+    personalInfo: {
+      name: 'Test User',
+      age: 35,
+      incomeRange: '$50,000 - $100,000'
+    },
+    investmentProfile: {
+      experienceLevel: 'INTERMEDIATE' as any,
+      riskTolerance: RiskTolerance.MODERATE,
+      riskScore: 5,
+      investmentKnowledge: []
+    },
+    goals: {
+      primaryGoals: ['retirement', 'house'],
+      timeHorizon: TimeHorizon.LONG_TERM,
+      specificGoalAmounts: {}
+    },
+    currentSituation: {
+      existingInvestments: 50000,
+      monthlySavings: 1000,
+      emergencyFund: 10000,
+      currentDebt: 0
+    },
+    preferences: {
+      communicationStyle: 'detailed' as const,
+      updateFrequency: 'monthly' as const
+    },
+    onboardingCompleted: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    // Legacy fields for backward compatibility
     name: 'Test User',
     age: 35,
     incomeRange: '$50,000 - $100,000',
@@ -23,9 +53,7 @@ describe('PortfolioAnalytics', () => {
     riskTolerance: RiskTolerance.MODERATE,
     financialGoals: ['retirement', 'house'],
     timeHorizon: TimeHorizon.LONG_TERM,
-    majorPurchases: [],
-    createdAt: new Date(),
-    updatedAt: new Date()
+    majorPurchases: []
   }
 
   describe('calculateHoldingMetrics', () => {

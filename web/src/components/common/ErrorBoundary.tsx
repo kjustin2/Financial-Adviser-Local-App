@@ -1,6 +1,8 @@
 import React from 'react'
 import { Button } from './Button'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
+import { getUserFriendlyErrorMessage, getErrorRecoveryActions, isRecoverableError } from '../../utils/errorHandling'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -50,31 +52,109 @@ interface ErrorFallbackProps {
 }
 
 const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError }) => {
+  const { title, message } = getUserFriendlyErrorMessage(error)
+  const recoveryActions = getErrorRecoveryActions(error)
+  const recoverable = isRecoverableError(error)
+
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Something went wrong</CardTitle>
+    <div className="flex min-h-screen items-center justify-center p-4 bg-gray-50">
+      <Card className="w-full max-w-lg">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <AlertTriangle className="h-6 w-6 text-red-600" />
+          </div>
+          <CardTitle className="text-xl font-semibold text-gray-900">{title}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-600">
-            We're sorry, but something unexpected happened. Please try refreshing the page.
+        <CardContent className="space-y-6">
+          <p className="text-center text-gray-600">
+            {message}
           </p>
+
+          {recoverable && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <div className="flex">
+                <RefreshCw className="h-5 w-5 text-blue-400 mt-0.5" />
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">
+                    Don't worry, this can usually be fixed
+                  </h3>
+                  <p className="mt-1 text-sm text-blue-700">
+                    Try one of the recovery options below, or refresh the page to start over.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && (
-            <details className="text-sm text-gray-500">
-              <summary className="cursor-pointer">Error details</summary>
-              <pre className="mt-2 whitespace-pre-wrap break-words">
-                {error.message}
-              </pre>
+            <details className="text-sm text-gray-500 bg-gray-50 rounded-md p-3">
+              <summary className="cursor-pointer font-medium hover:text-gray-700">
+                Technical Details
+              </summary>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <strong>Error:</strong> {error.message}
+                </div>
+                {error.stack && (
+                  <div>
+                    <strong>Stack Trace:</strong>
+                    <pre className="mt-1 text-xs whitespace-pre-wrap break-words bg-white p-2 rounded border">
+                      {error.stack}
+                    </pre>
+                  </div>
+                )}
+              </div>
             </details>
           )}
-          <div className="flex space-x-2">
-            <Button onClick={resetError} variant="primary">
-              Try again
-            </Button>
-            <Button onClick={() => window.location.reload()} variant="outline">
-              Refresh page
-            </Button>
+
+          <div className="space-y-3">
+            {/* Primary recovery actions */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              {recoverable && (
+                <Button onClick={resetError} variant="primary" className="flex items-center">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Try Again
+                </Button>
+              )}
+              {recoveryActions
+                .filter(action => action.primary)
+                .map((action, index) => (
+                  <Button
+                    key={index}
+                    onClick={action.action}
+                    variant={action.primary ? "primary" : "outline"}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+            </div>
+
+            {/* Secondary recovery actions */}
+            {recoveryActions.filter(action => !action.primary).length > 0 && (
+              <details className="text-center">
+                <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
+                  More Options
+                </summary>
+                <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                  {recoveryActions
+                    .filter(action => !action.primary)
+                    .map((action, index) => (
+                      <Button
+                        key={index}
+                        onClick={action.action}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        {action.label}
+                      </Button>
+                    ))}
+                </div>
+              </details>
+            )}
+          </div>
+
+          <div className="text-center text-xs text-gray-500">
+            If this problem persists, please contact support with the technical details above.
           </div>
         </CardContent>
       </Card>

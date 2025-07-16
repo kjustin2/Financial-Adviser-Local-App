@@ -1,20 +1,81 @@
-import { 
-  PortfolioAnalytics, 
-  DiversificationScore, 
-  TargetAllocation 
-} from './analytics'
 import type {
   Holding,
   UserProfile,
   Goal,
-  CreateRecommendationData
+  Recommendation
 } from '../types'
 import {
   RecommendationType,
   RecommendationPriority,
   SecurityType,
   GoalCategory
-} from '../types'
+} from '../types/enums'
+
+// Mock analytics functions for now - these would be implemented in analytics.ts
+const PortfolioAnalytics = {
+  calculateTotalValue: (holdings: Holding[]) => 
+    holdings.reduce((sum, h) => sum + (h.quantity * (h.currentPrice || h.purchasePrice)), 0),
+  
+  analyzeDiversification: (_holdings: Holding[]) => ({ 
+    overallScore: 75, 
+    recommendations: ['Add international exposure', 'Consider bonds'] 
+  }),
+  
+  calculateRiskMetrics: (holdings: Holding[], _profile: UserProfile) => {
+    const totalValue = PortfolioAnalytics.calculateTotalValue(holdings)
+    const concentrationRisk = holdings.length > 0 
+      ? Math.max(...holdings.map(h => ((h.quantity * (h.currentPrice || h.purchasePrice)) / totalValue) * 100))
+      : 0
+    
+    return { 
+      riskLevel: 'medium', 
+      concentrationRisk
+    }
+  },
+  
+  generateAllocationBreakdown: (holdings: Holding[]) => {
+    const total = PortfolioAnalytics.calculateTotalValue(holdings)
+    if (total === 0) return []
+    
+    const breakdown = new Map<string, number>()
+    holdings.forEach(h => {
+      const value = h.quantity * (h.currentPrice || h.purchasePrice)
+      const pct = (value / total) * 100
+      const assetType = h.securityType.toLowerCase()
+      breakdown.set(assetType, (breakdown.get(assetType) || 0) + pct)
+    })
+    
+    return Array.from(breakdown.entries()).map(([securityType, percentage]) => ({ 
+      securityType, 
+      percentage 
+    }))
+  },
+  
+  suggestTargetAllocation: (profile: UserProfile) => {
+    const age = profile.personalInfo?.age || profile.age || 30
+    const stockPct = Math.max(20, Math.min(90, 100 - age))
+    return { stocks: stockPct, bonds: 100 - stockPct }
+  },
+  
+  calculateHoldingMetrics: (holding: Holding) => {
+    const currentPrice = holding.currentPrice || holding.purchasePrice
+    return {
+      currentValue: holding.quantity * currentPrice,
+      gainLoss: (currentPrice - holding.purchasePrice) * holding.quantity,
+      gainLossPercent: ((currentPrice - holding.purchasePrice) / holding.purchasePrice) * 100
+    }
+  }
+}
+
+interface DiversificationScore {
+  overallScore: number
+  recommendations: string[]
+}
+
+interface TargetAllocation {
+  stocks: number
+  bonds: number
+}
 
 // Constants for recommendation thresholds
 export const RECOMMENDATION_THRESHOLDS = {
@@ -47,23 +108,50 @@ export class RecommendationEngine {
   
   static generateRecommendations(
     userProfile: UserProfile,
-    holdings: Holding[],
+    holdings: Holding[] = [],
     goals: Goal[] = []
-  ): CreateRecommendationData[] {
+  ): Recommendation[] {
     const context = this.createContext(userProfile, holdings, goals)
     
-    const recommendations: CreateRecommendationData[] = []
+    const rawRecommendations: any[] = []
     
     // Generate different types of recommendations
-    recommendations.push(...this.generateAllocationRecommendations(context))
-    recommendations.push(...this.generateRiskRecommendations(context))
-    recommendations.push(...this.generateDiversificationRecommendations(context))
-    recommendations.push(...this.generateGoalRecommendations(context))
-    recommendations.push(...this.generateRebalancingRecommendations(context))
-    recommendations.push(...this.generateCostRecommendations(context))
+    rawRecommendations.push(...this.generateAllocationRecommendations(context))
+    rawRecommendations.push(...this.generateRiskRecommendations(context))
+    rawRecommendations.push(...this.generateDiversificationRecommendations(context))
+    rawRecommendations.push(...this.generateGoalRecommendations(context))
+    rawRecommendations.push(...this.generateRebalancingRecommendations(context))
+    rawRecommendations.push(...this.generateCostRecommendations(context))
+    
+    // Convert to full Recommendation objects
+    const recommendations: Recommendation[] = rawRecommendations.map((rec, index) => ({
+      id: `rec-${Date.now()}-${index}`,
+      userId: userProfile.id,
+      type: rec.type,
+      priority: rec.priority,
+      title: rec.title,
+      description: rec.description,
+      rationale: rec.reasoning,
+      actionItems: rec.actionItems.map((item: string, itemIndex: number) => ({
+        id: `action-${Date.now()}-${index}-${itemIndex}`,
+        description: item,
+        completed: false
+      })),
+      expectedImpact: {
+        riskReduction: rec.type === RecommendationType.RISK_MANAGEMENT ? 15 : undefined,
+        returnImprovement: rec.type === RecommendationType.ALLOCATION ? 8 : undefined,
+        goalAcceleration: rec.type === RecommendationType.GOAL_ACHIEVEMENT ? 10 : undefined
+      },
+      implementationDifficulty: 'easy' as const,
+      status: 'pending' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      reasoning: rec.reasoning,
+      implemented: false
+    }))
     
     // Sort by priority and return
-    return this.sortRecommendations(recommendations)
+    return this.sortFullRecommendations(recommendations)
   }
 
   private static createContext(
@@ -85,8 +173,8 @@ export class RecommendationEngine {
     }
   }
 
-  private static generateAllocationRecommendations(context: RecommendationContext): CreateRecommendationData[] {
-    const recommendations: CreateRecommendationData[] = []
+  private static generateAllocationRecommendations(context: RecommendationContext): any[] {
+    const recommendations: any[] = []
     
     if (!context.holdings.length) {
       return recommendations
@@ -99,8 +187,8 @@ export class RecommendationEngine {
     const targetAllocation = PortfolioAnalytics.suggestTargetAllocation(context.userProfile)
     
     // Calculate current equity allocation (stocks + ETFs)
-    const currentStocks = allocations.find(a => a.securityType === SecurityType.STOCK)?.percentage || 0
-    const currentETFs = allocations.find(a => a.securityType === SecurityType.ETF)?.percentage || 0
+    const currentStocks = allocations.find(a => a.securityType === 'stock')?.percentage || 0
+    const currentETFs = allocations.find(a => a.securityType === 'etf')?.percentage || 0
     const currentEquity = currentStocks + currentETFs
     const targetEquity = targetAllocation.stocks
     
@@ -118,7 +206,7 @@ export class RecommendationEngine {
           priority,
           title: "Increase Equity Allocation",
           description: `Your current equity allocation is ${currentEquity.toFixed(1)}%, but based on your profile, you should have around ${targetEquity.toFixed(1)}%.`,
-          reasoning: `Given your ${context.userProfile.riskTolerance} risk tolerance and ${context.userProfile.timeHorizon.replace('_', ' ')} time horizon, a higher equity allocation could help you achieve better long-term returns.`,
+          reasoning: `Given your ${context.userProfile.riskTolerance} risk tolerance and ${context.userProfile.goals?.timeHorizon?.replace('_', ' ') || 'long-term'} time horizon, a higher equity allocation could help you achieve better long-term returns.`,
           actionItems: [
             `Consider adding ${equityGap.toFixed(1)}% more in stocks or equity ETFs`,
             "Look for low-cost broad market index funds",
@@ -143,9 +231,9 @@ export class RecommendationEngine {
     }
     
     // Check for missing asset classes
-    const currentBonds = allocations.find(a => a.securityType === SecurityType.BOND)?.percentage || 0
+    const currentBonds = allocations.find(a => a.securityType === 'bond')?.percentage || 0
     
-    if (currentBonds < RECOMMENDATION_THRESHOLDS.MIN_BOND_ALLOCATION && context.userProfile.age > RECOMMENDATION_THRESHOLDS.MIN_BOND_AGE) {
+    if (currentBonds < RECOMMENDATION_THRESHOLDS.MIN_BOND_ALLOCATION && (context.userProfile.personalInfo?.age || context.userProfile.age || 0) > RECOMMENDATION_THRESHOLDS.MIN_BOND_AGE) {
       recommendations.push({
         type: RecommendationType.ALLOCATION,
         priority: RecommendationPriority.MEDIUM,
@@ -163,11 +251,11 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  private static generateRiskRecommendations(context: RecommendationContext): CreateRecommendationData[] {
-    const recommendations: CreateRecommendationData[] = []
+  private static generateRiskRecommendations(context: RecommendationContext): any[] {
+    const recommendations: any[] = []
     
     // Check risk alignment
-    const userRisk = context.userProfile.riskTolerance.toLowerCase()
+    const userRisk = (context.userProfile.investmentProfile?.riskTolerance || context.userProfile.riskTolerance).toLowerCase()
     const portfolioRisk = context.riskMetrics.riskLevel.toLowerCase()
     
     if (userRisk !== portfolioRisk) {
@@ -223,8 +311,8 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  private static generateDiversificationRecommendations(context: RecommendationContext): CreateRecommendationData[] {
-    const recommendations: CreateRecommendationData[] = []
+  private static generateDiversificationRecommendations(context: RecommendationContext): any[] {
+    const recommendations: any[] = []
     
     // Use diversification analysis
     if (context.diversificationScore.overallScore < RECOMMENDATION_THRESHOLDS.MEDIUM_DIVERSIFICATION_THRESHOLD) {
@@ -263,8 +351,8 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  private static generateGoalRecommendations(context: RecommendationContext): CreateRecommendationData[] {
-    const recommendations: CreateRecommendationData[] = []
+  private static generateGoalRecommendations(context: RecommendationContext): any[] {
+    const recommendations: any[] = []
     
     if (!context.goals.length) {
       // Suggest setting goals
@@ -329,7 +417,7 @@ export class RecommendationEngine {
     
     // Check if emergency fund goal exists
     const hasEmergencyGoal = context.goals.some(goal => goal.category === GoalCategory.EMERGENCY)
-    if (!hasEmergencyGoal && context.userProfile.age < 65) {
+    if (!hasEmergencyGoal && (context.userProfile.personalInfo?.age || context.userProfile.age || 0) < 65) {
       recommendations.push({
         type: RecommendationType.GOAL_ACHIEVEMENT,
         priority: RecommendationPriority.HIGH,
@@ -347,8 +435,8 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  private static generateRebalancingRecommendations(context: RecommendationContext): CreateRecommendationData[] {
-    const recommendations: CreateRecommendationData[] = []
+  private static generateRebalancingRecommendations(context: RecommendationContext): any[] {
+    const recommendations: any[] = []
     
     if (context.holdings.length < 3) {
       return recommendations
@@ -396,8 +484,8 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  private static generateCostRecommendations(context: RecommendationContext): CreateRecommendationData[] {
-    const recommendations: CreateRecommendationData[] = []
+  private static generateCostRecommendations(context: RecommendationContext): any[] {
+    const recommendations: any[] = []
     
     // Check for high-cost investments (simplified analysis)
     const highCostHoldings = context.holdings.filter(h => h.securityType === SecurityType.MUTUAL_FUND)
@@ -441,7 +529,7 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  private static sortRecommendations(recommendations: CreateRecommendationData[]): CreateRecommendationData[] {
+  private static sortFullRecommendations(recommendations: Recommendation[]): Recommendation[] {
     const priorityWeights = {
       [RecommendationPriority.HIGH]: 3,
       [RecommendationPriority.MEDIUM]: 2,

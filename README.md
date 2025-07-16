@@ -141,11 +141,8 @@ npm test
 # Run tests in watch mode
 npm run test:watch
 
-# Generate coverage report
-npm run test:coverage
-
 # Type checking
-npm run type-check
+npx tsc --noEmit
 
 # Linting
 npm run lint
@@ -153,12 +150,13 @@ npm run lint
 
 ### Test Coverage
 
-The application includes comprehensive testing:
+The application includes comprehensive testing with updated dependencies:
 
-- **Unit Tests**: Component and service testing
-- **Integration Tests**: Complete user workflow testing
-- **Type Safety**: Full TypeScript coverage
+- **Unit Tests**: Component and service testing with @testing-library/jest-dom
+- **Integration Tests**: Complete user workflow testing with fake-indexeddb
+- **Type Safety**: Full TypeScript coverage with updated ESLint support
 - **Business Logic**: Portfolio calculations and analytics validation
+- **CI/CD Integration**: Automated testing in GitHub Actions workflow
 
 ## 🚀 Deployment
 

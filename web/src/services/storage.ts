@@ -137,12 +137,24 @@ export class StorageService {
 
   // Recommendations methods
   async createRecommendation(data: CreateRecommendationData): Promise<Recommendation> {
-    const recommendation = {
+    const recommendation: Recommendation = {
       ...data,
       id: crypto.randomUUID(),
-      implemented: false,
-      createdAt: new Date()
-    } as Recommendation
+      userId: 'default-user', // TODO: Get from auth context
+      rationale: data.reasoning,
+      actionItems: data.actionItems.map((item, index) => ({
+        id: `action-${crypto.randomUUID()}-${index}`,
+        description: item,
+        completed: false
+      })),
+      expectedImpact: {},
+      implementationDifficulty: 'easy',
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      reasoning: data.reasoning,
+      implemented: false
+    }
     
     await db.recommendations.add(recommendation)
     return recommendation

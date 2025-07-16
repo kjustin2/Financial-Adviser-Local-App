@@ -18,8 +18,9 @@ A modern, client-side web application for personal financial management and port
 - **State Management**: Zustand
 - **Data Storage**: IndexedDB (via Dexie.js)
 - **Validation**: Zod
-- **Testing**: Vitest
-- **Deployment**: GitHub Pages
+- **Testing**: Vitest with @testing-library/jest-dom and fake-indexeddb
+- **Code Quality**: ESLint with TypeScript support (v8.0+)
+- **Deployment**: GitHub Pages with automated CI/CD
 
 ## Getting Started
 

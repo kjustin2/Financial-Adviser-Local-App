@@ -18,19 +18,32 @@ describe('Portfolio Integration Tests', () => {
   it('should create a complete user workflow', async () => {
     // 1. Create user profile
     const profileData = {
-      name: 'Test User',
-      age: 35,
-      incomeRange: '$75,000 - $100,000',
-      experienceLevel: ExperienceLevel.INTERMEDIATE,
-      riskTolerance: RiskTolerance.MODERATE,
-      financialGoals: ['retirement', 'house'],
-      timeHorizon: TimeHorizon.LONG_TERM,
-      majorPurchases: []
+      personalInfo: {
+        name: 'Test User',
+        age: 35,
+        incomeRange: '$75,000 - $100,000'
+      },
+      investmentProfile: {
+        experienceLevel: ExperienceLevel.INTERMEDIATE,
+        riskTolerance: RiskTolerance.MODERATE,
+        investmentKnowledge: []
+      },
+      goals: {
+        primaryGoals: ['retirement', 'house'],
+        timeHorizon: TimeHorizon.LONG_TERM,
+        specificGoalAmounts: {}
+      },
+      currentSituation: {
+        existingInvestments: 50000,
+        monthlySavings: 1000,
+        emergencyFund: 10000,
+        currentDebt: 0
+      }
     }
 
     const profile = await storageService.createProfile(profileData)
-    expect(profile.name).toBe('Test User')
-    expect(profile.age).toBe(35)
+    expect(profile.personalInfo.name).toBe('Test User')
+    expect(profile.personalInfo.age).toBe(35)
 
     // 2. Add holdings
     const holding1 = await storageService.createHolding({
@@ -74,7 +87,15 @@ describe('Portfolio Integration Tests', () => {
 
     // 6. Save recommendations
     for (const rec of recommendations) {
-      await storageService.createRecommendation(rec)
+      const createData = {
+        type: rec.type,
+        priority: rec.priority,
+        title: rec.title,
+        description: rec.description,
+        reasoning: rec.reasoning,
+        actionItems: rec.actionItems.map(item => item.description)
+      }
+      await storageService.createRecommendation(createData)
     }
 
     const savedRecommendations = await storageService.getRecommendations()
@@ -138,14 +159,27 @@ describe('Portfolio Integration Tests', () => {
   it('should handle data persistence correctly', async () => {
     // Create and save a profile
     const profileData = {
-      name: 'Persistence Test',
-      age: 30,
-      incomeRange: '$50,000 - $75,000',
-      experienceLevel: ExperienceLevel.BEGINNER,
-      riskTolerance: RiskTolerance.CONSERVATIVE,
-      financialGoals: ['retirement'],
-      timeHorizon: TimeHorizon.LONG_TERM,
-      majorPurchases: []
+      personalInfo: {
+        name: 'Persistence Test',
+        age: 30,
+        incomeRange: '$50,000 - $75,000'
+      },
+      investmentProfile: {
+        experienceLevel: ExperienceLevel.BEGINNER,
+        riskTolerance: RiskTolerance.CONSERVATIVE,
+        investmentKnowledge: []
+      },
+      goals: {
+        primaryGoals: ['retirement'],
+        timeHorizon: TimeHorizon.LONG_TERM,
+        specificGoalAmounts: {}
+      },
+      currentSituation: {
+        existingInvestments: 25000,
+        monthlySavings: 500,
+        emergencyFund: 5000,
+        currentDebt: 0
+      }
     }
 
     const profile = await storageService.createProfile(profileData)
@@ -153,7 +187,7 @@ describe('Portfolio Integration Tests', () => {
     // Retrieve and verify
     const retrievedProfile = await storageService.getProfile()
     expect(retrievedProfile).not.toBeNull()
-    expect(retrievedProfile!.name).toBe('Persistence Test')
+    expect(retrievedProfile!.personalInfo.name).toBe('Persistence Test')
     expect(retrievedProfile!.id).toBe(profile.id)
 
     // Update profile
@@ -166,7 +200,7 @@ describe('Portfolio Integration Tests', () => {
     const updatedProfile = await storageService.updateProfile(updateData)
     expect(updatedProfile.age).toBe(31)
     expect(updatedProfile.riskTolerance).toBe(RiskTolerance.MODERATE)
-    expect(updatedProfile.name).toBe('Persistence Test') // Should remain unchanged
+    expect(updatedProfile.personalInfo.name).toBe('Persistence Test') // Should remain unchanged
   })
 
   it('should validate data integrity', async () => {
