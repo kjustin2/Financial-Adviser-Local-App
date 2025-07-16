@@ -74,7 +74,7 @@ describe('Portfolio Integration Tests', () => {
     expect(holdings).toHaveLength(2)
 
     // 4. Generate portfolio analysis
-    const analysis = PortfolioAnalytics.generatePortfolioAnalysis(holdings, profile)
+    const analysis = PortfolioAnalytics.generatePortfolioAnalysis(holdings)
     
     expect(analysis.summary.totalValue).toBe(12800) // (10 * 180) + (100 * 110)
     expect(analysis.summary.totalCostBasis).toBe(11500) // (10 * 150) + (100 * 100)

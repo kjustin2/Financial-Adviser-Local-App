@@ -325,10 +325,10 @@ export class PortfolioAnalytics {
     }
   }
 
-  static generatePortfolioAnalysis(holdings: Holding[], userProfile?: UserProfile): PortfolioAnalysis {
+  static generatePortfolioAnalysis(holdings: Holding[]): PortfolioAnalysis {
     const summary = this.generatePortfolioSummary(holdings)
     const allocations = this.generateAllocationBreakdown(holdings)
-    const riskMetrics = this.calculateRiskMetrics(holdings, userProfile)
+    const riskMetrics = this.calculateRiskMetrics(holdings)
     
     // Get top and worst performers
     const holdingMetrics = holdings.map(h => ({
@@ -373,7 +373,7 @@ export class PortfolioAnalytics {
     recommendations.push(...diversification.recommendations)
 
     // Risk management score (0-25 points)
-    const riskMetrics = this.calculateRiskMetrics(holdings, userProfile)
+    const riskMetrics = this.calculateRiskMetrics(holdings)
 
     if (userProfile) {
       const userRisk = userProfile.riskTolerance
