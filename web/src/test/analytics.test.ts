@@ -1,5 +1,5 @@
 import { PortfolioAnalytics } from '../services/analytics'
-import { SecurityType, RiskTolerance, TimeHorizon } from '../types'
+import { SecurityType, RiskTolerance, TimeHorizon, ExperienceLevel } from '../types'
 
 describe('PortfolioAnalytics', () => {
   const mockHolding = {
@@ -22,7 +22,7 @@ describe('PortfolioAnalytics', () => {
       incomeRange: '$50,000 - $100,000'
     },
     investmentProfile: {
-      experienceLevel: 'INTERMEDIATE' as any,
+      experienceLevel: 'INTERMEDIATE' as ExperienceLevel,
       riskTolerance: RiskTolerance.MODERATE,
       riskScore: 5,
       investmentKnowledge: []
@@ -49,7 +49,7 @@ describe('PortfolioAnalytics', () => {
     name: 'Test User',
     age: 35,
     incomeRange: '$50,000 - $100,000',
-    experienceLevel: 'INTERMEDIATE' as any,
+    experienceLevel: 'INTERMEDIATE' as ExperienceLevel,
     riskTolerance: RiskTolerance.MODERATE,
     financialGoals: ['retirement', 'house'],
     timeHorizon: TimeHorizon.LONG_TERM,

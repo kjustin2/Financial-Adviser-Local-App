@@ -19,36 +19,36 @@ export class FinancialAdvisorDB extends Dexie {
       settings: '++id'
     })
 
-    this.profiles.hook('creating', function (_primKey, obj, _trans) {
+    this.profiles.hook('creating', function (_, obj) {
       obj.id = crypto.randomUUID()
       obj.createdAt = new Date()
       obj.updatedAt = new Date()
     })
 
-    this.profiles.hook('updating', function (modifications, _primKey, _obj, _trans) {
-      (modifications as any).updatedAt = new Date()
+    this.profiles.hook('updating', function (modifications) {
+      (modifications as Record<string, unknown>).updatedAt = new Date()
     })
 
-    this.holdings.hook('creating', function (_primKey, obj, _trans) {
+    this.holdings.hook('creating', function (_, obj) {
       obj.id = crypto.randomUUID()
       obj.lastUpdated = new Date()
     })
 
-    this.holdings.hook('updating', function (modifications, _primKey, _obj, _trans) {
-      (modifications as any).lastUpdated = new Date()
+    this.holdings.hook('updating', function (modifications) {
+      (modifications as Record<string, unknown>).lastUpdated = new Date()
     })
 
-    this.goals.hook('creating', function (_primKey, obj, _trans) {
+    this.goals.hook('creating', function (_, obj) {
       obj.id = crypto.randomUUID()
       obj.createdAt = new Date()
       obj.updatedAt = new Date()
     })
 
-    this.goals.hook('updating', function (modifications, _primKey, _obj, _trans) {
-      (modifications as any).updatedAt = new Date()
+    this.goals.hook('updating', function (modifications) {
+      (modifications as Record<string, unknown>).updatedAt = new Date()
     })
 
-    this.recommendations.hook('creating', function (_primKey, obj, _trans) {
+    this.recommendations.hook('creating', function (_, obj) {
       obj.id = crypto.randomUUID()
       obj.createdAt = new Date()
     })

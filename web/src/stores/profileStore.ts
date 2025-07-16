@@ -145,7 +145,7 @@ export const useProfileStore = create<ProfileState & ProfileActions>()(
           const exists = !!profile
           set({ hasProfile: exists })
           return exists
-        } catch (error) {
+        } catch {
           set({ hasProfile: false })
           return false
         }

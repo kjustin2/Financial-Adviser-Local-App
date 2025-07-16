@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { storageService } from '../../services/storage'
 import { PortfolioAnalytics } from '../../services/analytics'
 import { RecommendationEngine } from '../../services/recommendations'
-import { SecurityType, RiskTolerance, TimeHorizon, ExperienceLevel } from '../../types'
+import { SecurityType, RiskTolerance, TimeHorizon, ExperienceLevel, GoalCategory, GoalPriority } from '../../types'
 
 describe('Portfolio Integration Tests', () => {
   beforeEach(async () => {
@@ -104,11 +104,11 @@ describe('Portfolio Integration Tests', () => {
     // 7. Create a goal
     const goalData = {
       name: 'Emergency Fund',
-      category: 'emergency' as any,
+      category: 'emergency' as GoalCategory,
       targetAmount: 10000,
       targetDate: new Date('2024-12-31'),
       currentAmount: 2500,
-      priority: 'high' as any
+      priority: 'high' as GoalPriority
     }
 
     const goal = await storageService.createGoal(goalData)

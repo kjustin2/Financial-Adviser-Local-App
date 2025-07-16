@@ -199,7 +199,7 @@ export class PortfolioAnalytics {
     }
   }
 
-  static calculateRiskMetrics(holdings: Holding[], _userProfile?: UserProfile): RiskMetrics {
+  static calculateRiskMetrics(holdings: Holding[]): RiskMetrics {
     if (!holdings.length) {
       return {
         diversificationScore: 0,

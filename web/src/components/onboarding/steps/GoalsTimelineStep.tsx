@@ -63,7 +63,7 @@ export const GoalsTimelineStep: React.FC = () => {
     const currentAmounts = stepData.specificGoalAmounts || {}
     
     if (isNaN(numericAmount) || amount === '') {
-      const { [goal]: removed, ...rest } = currentAmounts
+      const { [goal]: _removed, ...rest } = currentAmounts
       updateStepData({ specificGoalAmounts: rest })
     } else {
       updateStepData({ 

@@ -16,12 +16,12 @@ const PortfolioAnalytics = {
   calculateTotalValue: (holdings: Holding[]) => 
     holdings.reduce((sum, h) => sum + (h.quantity * (h.currentPrice || h.purchasePrice)), 0),
   
-  analyzeDiversification: (_holdings: Holding[]) => ({ 
+  analyzeDiversification: () => ({ 
     overallScore: 75, 
     recommendations: ['Add international exposure', 'Consider bonds'] 
   }),
   
-  calculateRiskMetrics: (holdings: Holding[], _profile: UserProfile) => {
+  calculateRiskMetrics: (holdings: Holding[]) => {
     const totalValue = PortfolioAnalytics.calculateTotalValue(holdings)
     const concentrationRisk = holdings.length > 0 
       ? Math.max(...holdings.map(h => ((h.quantity * (h.currentPrice || h.purchasePrice)) / totalValue) * 100))
@@ -160,8 +160,8 @@ export class RecommendationEngine {
     goals: Goal[]
   ): RecommendationContext {
     const portfolioValue = PortfolioAnalytics.calculateTotalValue(holdings)
-    const diversificationScore = PortfolioAnalytics.analyzeDiversification(holdings)
-    const riskMetrics = PortfolioAnalytics.calculateRiskMetrics(holdings, userProfile)
+    const diversificationScore = PortfolioAnalytics.analyzeDiversification()
+    const riskMetrics = PortfolioAnalytics.calculateRiskMetrics(holdings)
     
     return {
       userProfile,
@@ -587,7 +587,7 @@ export class RecommendationEngine {
   }
 
   static assessRiskLevel(holdings: Holding[], userProfile: UserProfile) {
-    const riskMetrics = PortfolioAnalytics.calculateRiskMetrics(holdings, userProfile)
+    const riskMetrics = PortfolioAnalytics.calculateRiskMetrics(holdings)
     
     const assessment = {
       portfolioRisk: riskMetrics.riskLevel,

@@ -52,4 +52,4 @@ global.IntersectionObserver = class IntersectionObserver implements Intersection
   takeRecords(): IntersectionObserverEntry[] {
     return []
   }
-} as any
+} as typeof IntersectionObserver
